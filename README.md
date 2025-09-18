@@ -47,30 +47,29 @@ Start Jupyter and open the analysis notebook:
 ```bash
 jupyter notebook notebooks/analysis_notebook.ipynb
 ```
-
 ## Contributing – Notebook Cleanliness
 
-This repository uses pre-commit
- with nbstripout
- to keep Jupyter notebooks clean in Git (no execution_count churn, no cell outputs).
+This repository uses [**pre-commit**](https://pre-commit.com/) with [**nbstripout**](https://github.com/kynan/nbstripout)  
+to keep Jupyter notebooks clean in Git (no `execution_count` churn, no cell outputs).
 
-First-time setup after cloning
-conda activate pipeline      # or your chosen env
+### First-time setup after cloning
+```bash
+conda activate pipeline   # or your chosen env
 pre-commit install
-
-Usage
+```
+### Usage
 
 On every git commit, notebook outputs and execution counts are stripped automatically.
 
 If pre-commit reports that files were modified:
 
-Stage the cleaned files again (git add <file>).
+git add <file>
 
-Re-run your commit.
+git commit -m "Clean notebooks"
 
 Manual clean (optional)
 
-You can also strip all notebooks at once:
+Strip all notebooks at once:
 
 pre-commit run --all-files
 
