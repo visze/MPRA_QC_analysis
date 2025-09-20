@@ -64,10 +64,10 @@ def set_plot_style():
     
 def save_fig(fig,name,path):
     """
-    Save the figure to the specified path in PNG and EPS formats at 300 dpi.
+    Save the figure to the specified path in PNG and EPS formats at 500 dpi.
     """
-    fig.savefig(f"{path}/{name}.png", dpi=300,bbox_inches='tight') # bbxox argument added by Omer to fit the plot to size 15/04
-    fig.savefig(f"{path}/{name}.eps", dpi=300,bbox_inches='tight')
+    fig.savefig(f"{path}/{name}.png", dpi=500,bbox_inches='tight') # bbxox argument added by Omer to fit the plot to size 15/04
+    fig.savefig(f"{path}/{name}.eps", dpi=500,bbox_inches='tight') # increasd DPI to 500 NM 19/09
 
 
 def set_equal_plot_limits(x, y): 
@@ -95,6 +95,12 @@ plot_color_pallete = {
 
     
 MPRA_data_paths = {
+    "thylacine_biorxiv_Gallego_Romero": {
+        "activity_per_rep":
+        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/thylacine biorxiv Gallego Romero/QC_ready/activity_per_rep.csv",
+        "supplementary":
+        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/thylacine biorxiv Gallego Romero/media-4.xlsx"
+    },
     "PMID_38766054_Reilly": {
         "comb_df": 
         "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/PMID_38766054_Reilly/QC_ready/activity_df.csv",
