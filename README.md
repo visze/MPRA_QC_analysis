@@ -16,12 +16,12 @@ It is designed for researchers who want a ready-to-use, reproducible framework f
 ---
 
 ## 📂 Repository Structure
-├── .pre-commit-config.yaml # for uploading to git without execution
-├── Association_analysis.ipynb
-├── activity_analysis.ipynb
+├─ notebooks/
+│  └─ activity_analysis.ipynb
+│  └─Association_analysis.ipynb
+│  └─const.py # Definitions and paths for running the notebooks
 ├── results/ # Example outputs
 ├── environment.yml # Conda environment file
-├── const.py # Definitions and paths for running the notebooks
 └── README.md # Project documentation
 
 ---
