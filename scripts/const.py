@@ -99,7 +99,9 @@ MPRA_data_paths = {
         "activity_per_rep":
         "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/thylacine biorxiv Gallego Romero/QC_ready/activity_per_rep.csv",
         "supplementary":
-        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/thylacine biorxiv Gallego Romero/media-4.xlsx"
+        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/thylacine biorxiv Gallego Romero/media-4.xlsx",
+        "cDNA_reads_by_cell_type":
+        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/thylacine biorxiv Gallego Romero/july24.count" 
     },
     "PMID_38766054_Reilly": {
         "comb_df": 
@@ -107,7 +109,8 @@ MPRA_data_paths = {
         
         "activity_per_rep":
         "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/PMID_38766054_Reilly/QC_ready/activity_per_rep.csv",
-        
+        "cDNA_reads_by_cell_type":
+        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/PMID_27259153_Reilly/GSE75661_79k_collapsed_counts.txt", 
         "oligo_fasta":
         "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/PMID_38766054_Reilly/QC_ready/ENCFF715XTT.fasta",
         "supplementary":
