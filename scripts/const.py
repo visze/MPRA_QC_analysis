@@ -93,8 +93,17 @@ plot_color_pallete = {
     "cCRE-barcode-pair": "#9383B8", # magenta
 }
 
-    
+
 MPRA_data_paths = {
+    "d2Osteoblast_spiking_oligos":{
+        "comb_df": 
+        "/home/labs/davidgo/Collaboration/L4_MPRA/d2Osteoblast/L4a3/output/activity_after_filter/comb_df_adjusted_fdr.csv"
+    },
+     "d3Osteoblast_spiking_oligos":{
+        "comb_df": 
+        "/home/labs/davidgo/Collaboration/L4_MPRA/d3Osteoblast/L3a1/output/activity_after_filter/comb_df_adjusted_fdr.csv"
+    },
+    
     "thylacine_biorxiv_Gallego_Romero": {
         "activity_per_rep":
         "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/thylacine biorxiv Gallego Romero/QC_ready/activity_per_rep.csv",
