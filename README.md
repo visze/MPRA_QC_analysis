@@ -16,7 +16,7 @@ It is designed for researchers who want a ready-to-use, reproducible framework f
 ---
 
 ## 📂 Repository Structure
-├─ notebooks/
+├─ scripts/
 │  └─ activity_analysis.ipynb
 │  └─Association_analysis.ipynb
 │  └─const.py # Definitions and paths for running the notebooks
@@ -73,5 +73,6 @@ pre-commit run --all-files
 ```
 
 ## 🙌 Acknowledgments
+
 
 Special thanks to collaborators and prior work that inspired this pipeline.
