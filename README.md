@@ -20,6 +20,7 @@ It is designed for researchers who want a ready-to-use, reproducible framework f
 │  └─ activity_analysis.ipynb
 │  └─Association_analysis.ipynb
 │  └─const.py # Definitions and paths for running the notebooks
+│  └─Process_for_association_QC.py # Preprocessing association files for the QC pipeline
 ├── results/ # Example outputs
 ├── environment.yml # Conda environment file
 └── README.md # Project documentation
@@ -45,7 +46,7 @@ conda activate new_env
 
 Start Jupyter and open the notebooks
 
-## Contributing – Notebook Cleanliness
+## Contributing – Notebook Cleanliness (recommended for your own use)
 
 This repository uses [**pre-commit**](https://pre-commit.com/) with [**nbstripout**](https://github.com/kynan/nbstripout)  
 to keep Jupyter notebooks clean in Git (no `execution_count` churn, no cell outputs).
