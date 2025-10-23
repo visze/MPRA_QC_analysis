@@ -703,6 +703,18 @@ MPRA_data_paths = {
         "oligo_fasta":
         "/home/labs/davidgo/Collaboration/methMPRA/main2025/oligo_fasta/MH_qaed.fasta"
     
+    },
+    "L4a3a4_NPCpresat":{
+    "comb_df": 
+    "/home/labs/davidgo/Collaboration/L4_MPRA/NPCpresat/L4a3a4/output/activity_after_filter/comb_df_adjusted_fdr.csv",
+        
+    "activity_per_rep": 
+    "/home/labs/davidgo/Collaboration/L4_MPRA/NPCpresat/L4a3a4/output/filter/ratio_wo_outliers_std2.csv",   
+    
+    "oligo_fasta":
+    "/home/labs/davidgo/Collaboration/L4_MPRA/oligo_fasta/L4a3a4_satmut.preMPRA.fasta",
+    "UMI_counts":
+    "/home/labs/davidgo/Collaboration/L4_MPRA/NPCpresat/L4a3a4/output/UMI/UMI_complexity_for_QC_pipeline.txt"
     }
 }
     
