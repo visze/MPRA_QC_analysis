@@ -439,7 +439,7 @@ MPRA_data_paths = {
 
     }, 
     
-    "archaic_MPRA":{
+    "archaic_MPRA":{ #deprecated for activty analysis
         "comb_df": 
     "/home/labs/davidgo/Collaboration/ArchaicDerivedMPRA/activity_data/npc_AH_comb_df_adjusted_fdr.csv", #NM 14.05
         
@@ -453,6 +453,16 @@ MPRA_data_paths = {
     "/home/labs/davidgo/Collaboration/ArchaicDerivedMPRA/activity_data/UMI_exploded_std2_filter.txt",
         
         'association_final':"/home/labs/davidgo/Collaboration/archaicMPRA_raw/Ryder/association/AH/comb_output/final_df.csv"
+    },
+        "archaic_MPRA_NPCs":{
+        "comb_df": 
+    "/home/labs/davidgo/Collaboration/ArchaicDerivedMPRA/activity_data/npc_AH_comb_df_adjusted_fdr_fixed.csv", #NM 14.05
+        
+        "oligo_fasta":
+        "/home/labs/davidgo/Collaboration/archaicMPRA_raw/Ryder/association/AH/archaic_derived_mpra_oligos.fa", #NM 14.05
+    
+        "activity_per_rep": 
+    "/home/labs/davidgo/Collaboration/ArchaicDerivedMPRA/activity_data/ratio_wo_outliers_std2.csv",
     }, 
     
     "methMPRA": {
