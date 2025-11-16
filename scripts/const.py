@@ -463,7 +463,17 @@ MPRA_data_paths = {
     
         "activity_per_rep": 
     "/home/labs/davidgo/Collaboration/ArchaicDerivedMPRA/activity_data/ratio_wo_outliers_std2.csv",
-    }, 
+    },
+        "archaic_MPRA_ost":{
+        "comb_df": 
+    "/home/labs/davidgo/Collaboration/archaicMPRA_raw/Ryder/AH MPRA DATA/processed_data/osteoblast/for_QC/ost_AH_comb_df_adjusted_fdr_fixed.csv",
+        
+        "oligo_fasta":
+        "/home/labs/davidgo/Collaboration/archaicMPRA_raw/Ryder/association/AH/archaic_derived_mpra_oligos.fa",
+    
+        "activity_per_rep": 
+    "/home/labs/davidgo/Collaboration/archaicMPRA_raw/Ryder/AH MPRA DATA/processed_data/osteoblast/for_QC/HOb_ratios_filter_fixed.text",
+    },
     
     "methMPRA": {
          "comb_df":
