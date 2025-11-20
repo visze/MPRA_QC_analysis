@@ -745,5 +745,13 @@ MPRA_data_paths = {
     "UMI_counts":
     "/home/labs/davidgo/Collaboration/L4_MPRA/NPCpresat/L4a3a4/output/UMI/UMI_complexity_for_QC_pipeline.txt"
     }
+    
+    "humanMPRA_L1a1_Neurons": {
+        "screen_df":  
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/activity_after_filter/screen_df.csv",
+        "tss_df":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/activity_after_filter/distance_df.csv"
+        
+    }
 }
     
