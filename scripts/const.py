@@ -57,7 +57,8 @@ def set_plot_style():
         'axes.grid': False,  # No grid
         'axes.spines.top': False,  # Top border off
         'axes.spines.right': False,  # Right border off
-        'figure.facecolor': 'white',  # White background
+        'figure.facecolor': 'none',
+        'axes.facecolor': 'none',  
 #        'legend.frameon': False  # No frame for legend
     })
     
@@ -67,9 +68,9 @@ def save_fig(fig,name,path):
     """
     Save the figure to the specified path in PNG and EPS formats at 500 dpi.
     """
-    fig.savefig(f"{path}/{name}.png", dpi=500,bbox_inches='tight') # bbxox argument added by Omer to fit the plot to size 15/04
+    fig.savefig(f"{path}/{name}.png", dpi=500,bbox_inches='tight',transparent=True) # bbxox argument added by Omer to fit the plot to size 15/04
     fig.savefig(f"{path}/{name}.eps", dpi=500,bbox_inches='tight') # increasd DPI to 500 NM 19/09
-    fig.savefig(f"{path}/{name}.pdf", dpi=500,bbox_inches='tight') 
+    fig.savefig(f"{path}/{name}.pdf", dpi=500,bbox_inches='tight',transparent=True) 
 
 def set_equal_plot_limits(x, y): 
     """
