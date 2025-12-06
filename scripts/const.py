@@ -17,6 +17,7 @@ from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 
 
+
 # Standard font size and family
 FONT_SIZE_small = 18 #changed from 16 NM 06-02-2025
 FONT_SIZE_big = 20 #changed from 18 NM 06-02-2025
