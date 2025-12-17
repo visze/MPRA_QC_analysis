@@ -69,7 +69,8 @@ def save_fig(fig,name,path):
     """
     Save the figure to the specified path in PNG and EPS formats at 500 dpi.
     """
-    fig.savefig(f"{path}/{name}.png", dpi=500,bbox_inches='tight',transparent=True) # bbxox argument added by Omer to fit the plot to size 15/04
+    fig.savefig(f"{path}/{name}.png", dpi=500,bbox_inches='tight',transparent=True) 
+    fig.savefig(f"{path}/{name}.svg", bbox_inches="tight", transparent=True)
     fig.savefig(f"{path}/{name}.eps", dpi=500,bbox_inches='tight') # increasd DPI to 500 NM 19/09
     fig.savefig(f"{path}/{name}.pdf", dpi=500,bbox_inches='tight',transparent=True) 
 
@@ -627,6 +628,8 @@ MPRA_data_paths = {
         
         "activity_per_rep":
         "/home/labs/davidgo/Collaboration/other_MPRAs/Max_MPRA/Max293T/run2/output/filter/ratio_wo_outliers_std2.csv",
+        
+        "assoc_downsampling":"/home/labs/davidgo/Collaboration/MPRA_QC_pipeline/associations/input/Max_MPRA_run2/downsampling/"
                     },
     
     "d5LYOsteoblast_L4a4": {
