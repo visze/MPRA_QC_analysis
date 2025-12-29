@@ -182,7 +182,9 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/L4_MPRA/Chondrocyte/L3a2/output/DNA_barcode_associations_2/after_associations_filter.csv",
         
         "comparative_res":
-        "/home/labs/davidgo/Collaboration/humanMPRA/chondrocytes/L3a2/output/mpranalyze_comparative/mpranalyze_comp_res_filter_sorted.txt"
+        "/home/labs/davidgo/Collaboration/humanMPRA/chondrocytes/L3a2/output/mpranalyze_comparative/mpranalyze_comp_res_filter_sorted.txt",
+        "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a2/output/DNA_barcode_associations_2/final_df.csv"
         
         
      },
@@ -218,7 +220,9 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/DNA_barcode_associations_2/after_promiscuity_filter.csv",
         
         "association_after_associations":
-        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/DNA_barcode_associations_2/after_associations_filter.csv"
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/DNA_barcode_associations_2/after_associations_filter.csv",
+         "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/DNA_barcode_associations_2/final_df.csv"
     },
         "humanMPRA_L4a1": {
         "comb_df": 
@@ -250,6 +254,9 @@ MPRA_data_paths = {
         
        "association_output":
                           "/home/labs/davidgo/Collaboration/L4_MPRA/OsteoblastPrev/L4a1/output/DNA_barcode_associations_2/final_filtered_barcode_reads_2_L4a1.txt",
+            
+        "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L4a1/output/DNA_barcode_associations_2/Omer_re-send/final_df.csv",
         #"UMI_counts":
         #"/home/labs/davidgo/Collaboration/humanMPRA/chondrocytes/L4a1/output/UMI/UMI_complexity_for_QC_pipeline.txt"
      },    
@@ -280,7 +287,9 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a2/output/DNA_barcode_associations_2/after_promiscuity_filter.csv",
         
         "association_after_associations":
-        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a2/output/DNA_barcode_associations_2/after_associations_filter.csv"
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a2/output/DNA_barcode_associations_2/after_associations_filter.csv",
+                 "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a2/output/DNA_barcode_associations_2/final_df.csv"
     },
 
     "humanMPRA_L1a3":{
@@ -295,6 +304,8 @@ MPRA_data_paths = {
         
         "association_output":
          "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a3/output/DNA_barcode_associations_2/final_filtered_barcode_reads_2_L1a3.txt",
+       "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a3/output/DNA_barcode_associations_2/final_df.csv"
     },
 
     "humanMPRA_L2a1":{
@@ -323,7 +334,9 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a1/output/DNA_barcode_associations_2/after_promiscuity_filter.csv",
         
         "association_after_associations":
-        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a1/output/DNA_barcode_associations_2/after_associations_filter.csv"
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a1/output/DNA_barcode_associations_2/after_associations_filter.csv",
+        "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a1/output/DNA_barcode_associations_2/final_df.csv"
     },
 
     "humanMPRA_L2a2":{
@@ -338,6 +351,8 @@ MPRA_data_paths = {
         
         "association_output":
          "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a2/output/DNA_barcode_associations_2/final_filtered_barcode_reads_2_L2a2.txt",
+       "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a2/output/DNA_barcode_associations_2/final_df.csv"
     },
       "humanMPRA_L2a3":{
             "comb_df": 
@@ -349,7 +364,9 @@ MPRA_data_paths = {
         "oligo_fasta":
         "/home/labs/davidgo/Collaboration/humanMPRA/oligo_fasta/L2a3.fasta",
           "association_output":
-        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a3/output/DNA_barcode_associations_2/final_filtered_barcode_reads_2_L2a3.txt"
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a3/output/DNA_barcode_associations_2/final_filtered_barcode_reads_2_L2a3.txt",
+        "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L2a3/output/DNA_barcode_associations_2/final_df.csv"
     },
 
       "humanMPRA_L3a1":{
@@ -378,7 +395,9 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a1/output/DNA_barcode_associations_2/after_promiscuity_filter.csv",
         
         "association_after_associations":
-        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a1/output/DNA_barcode_associations_2/after_associations_filter.csv"
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a1/output/DNA_barcode_associations_2/after_associations_filter.csv",
+        "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a1/output/DNA_barcode_associations_2/final_df.csv"
     },
 
       "humanMPRA_L3a3":{
@@ -392,6 +411,8 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/humanMPRA/oligo_fasta/L3a3.fasta",
         "association_output":
         "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a3/output/DNA_barcode_associations_2/final_filtered_barcode_reads_2_L3a3.txt",
+        "association_final":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a3/output/DNA_barcode_associations_2/final_df.csv"
     },
 
           
@@ -410,7 +431,9 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/mpranalyze_comparative_old/mpranalyze_comp_res_filter.txt",
 
         "UMI_counts":
-        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a2/output/UMI/UMI_complexity_for_QC_pipeline.txt"
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L3a2/output/UMI/UMI_complexity_for_QC_pipeline.txt",
+        
+        
     },  
     "modern_humanMPRA":{ # Mostly Depracted! I keep it just for legacy. Replaced by  NM 13-09 
             "comb_df": 
@@ -444,7 +467,10 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/ReproducingCarly/outputs/filter/downsampling/Hob/",
         
         "comparative_res":
-        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/Modern human derived MPRA/comparative_df_Hob.csv"
+        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/Modern human derived MPRA/comparative_df_Hob.csv",
+        
+        "AI_df":
+        "/home/labs/davidgo/Collaboration/USEFUL_DATASETS/Expression/MPRAs/Modern human derived MPRA/AI_pred_df.csv",
         
     },    "modern_humanMPRA_NPC":{
             "comb_df": 
@@ -455,7 +481,10 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/RepCarlyClean/output/NPC_results_full_quantitative_nobc_fdr.txt",
         
         "downsampling_activity_path":
-        "/home/labs/davidgo/Collaboration/ReproducingCarly/outputs/activity_after_filter/downsampling/NPC/"
+        "/home/labs/davidgo/Collaboration/ReproducingCarly/outputs/activity_after_filter/downsampling/NPC/",
+        
+        "downsampling_ratio_path":
+        "/home/labs/davidgo/Collaboration/ReproducingCarly/outputs/filter/downsampling/NPC/"
 
     }, 
     
@@ -777,7 +806,11 @@ MPRA_data_paths = {
         "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/filter/ratio_wo_outliers_std2.csv",
         
         "comparative_res":
-        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/mpranalyze_comparative_old/comparative_df.csv"
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/mpranalyze_comparative_old/comparative_df.csv",
+        
+        "AI_df":
+        "/home/labs/davidgo/Collaboration/humanMPRA/neurons/L1a1/output/activity_after_filter/AI_pred_df.csv",
+        
         
     }
     
