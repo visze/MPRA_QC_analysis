@@ -658,8 +658,15 @@ MPRA_data_paths = {
         "activity_per_rep":
         "/home/labs/davidgo/Collaboration/other_MPRAs/Max_MPRA/Max293T/run2/output/filter/ratio_wo_outliers_std2.csv",
         
-        "assoc_downsampling":"/home/labs/davidgo/Collaboration/MPRA_QC_pipeline/associations/input/Max_MPRA_run2/downsampling/"
+        "assoc_downsampling":"/home/labs/davidgo/Collaboration/MPRA_QC_pipeline/associations/input/Max_MPRA_run2/downsampling/",
+        "downsampling_activity_path":
+        "/home/labs/davidgo/Collaboration/other_MPRAs/Max_MPRA/Max293T/run2/output/activity_after_filter/downsampling/",
+        
+        "downsampling_ratio_path":
+        "/home/labs/davidgo/Collaboration/other_MPRAs/Max_MPRA/Max293T/run2/output/filter/downsampling/",
                     },
+            
+        
     
     "d5LYOsteoblast_L4a4": {
         "oligo_fasta":
