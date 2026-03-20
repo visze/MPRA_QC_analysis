@@ -40,3 +40,13 @@ Thumbs.db
 .mypy_cache/
 .pytest_cache/
 
+# ------------------------
+# Input and output files
+# ------------------------
+*.csv
+*.csv.gz
+*.png
+*.pdf
+*.eps
+*.svg
+*.fasta
