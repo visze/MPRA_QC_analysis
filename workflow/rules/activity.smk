@@ -5,7 +5,7 @@ rule activity:
     conda:
         getCondaEnv("default.yml")
     input:
-        activity_file=config["activity"],
+        activity_file=config["activity"] if "activity" in config else [],
         script=getScript("activity_analysis.py"),
     output:
         touch("results/{project}/activity.done"),
