@@ -7,6 +7,7 @@ rule activity:
     input:
         activity_file=config["activity"] if "activity" in config else [],
         script=getScript("activity_analysis.py"),
+        const=getScript("const.py"),
     output:
         touch("results/{project}/activity.done"),
     shell:

@@ -7,6 +7,7 @@ rule association:
     input:
         association_file=config["association"] if "association" in config else [],
         script=getScript("association_analysis.py"),
+        const=getScript("const.py"),
     output:
         touch("results/{project}/association.done"),
     shell:
