@@ -379,10 +379,21 @@ def plot_activity_downsampling(ds_path):
     act_perc_list=[]
     downsampling_perc_list=np.arange(0.1,1.01,0.1)
     for p in downsampling_perc_list:
-        perc=round(p,1)
+        perc = round(p, 1)
         print(perc)
-        path=fr"{ds_path}/activity_df_{perc}.csv"
-        df=pd.read_csv(path)
+        csv_gz_path = fr"{ds_path}/activity_df_{perc}.csv.gz"
+        csv_path = fr"{ds_path}/activity_df_{perc}.csv"
+        
+        if os.path.exists(csv_gz_path):
+            csv_path = csv_gz_path
+            
+        elif not os.path.exists(csv_path):
+            print(f"Error: Neither {csv_gz_path} nor {csv_path} found.")
+            print(f"Skipping ploting the activity downsampling")
+            return
+        
+        df = pd.read_csv(csv_path)
+        
         act_perc=(df['activity_status']=='active').sum()/df.shape[0]
         act_perc_list.append(act_perc)
     
@@ -406,10 +417,28 @@ def plot_reproducibility_by_sequencing_depth(ds_activity_path,ds_ratio_path):
     for p in downsampling_perc_list:
         perc=round(p,1)
         print(perc)
-        rep_path=fr"{ds_ratio_path}/ratio_df_{perc}.csv"
-        act_path = fr"{ds_activity_path}/activity_df_{perc}.csv"
+        rep_gz_path = fr"{ds_ratio_path}/ratio_df_{perc}.csv.gz"
+        rep_path = fr"{ds_ratio_path}/ratio_df_{perc}.csv"
+        
+        if os.path.exists(rep_gz_path):
+            rep_path = rep_gz_path
+        elif not os.path.exists(rep_path):
+            print(f"Error: Neither {rep_gz_path} nor {rep_path} found.")
+            print(f"Skipping ploting reproducibility by sequencing depth")
+            return
         activity_by_rep_df_ds = pd.read_csv(rep_path)
-        activity_df_ds=pd.read_csv(act_path)
+        
+        act_gz_path = fr"{ds_activity_path}/activity_df_{perc}.csv.gz"
+        act_path = fr"{ds_activity_path}/activity_df_{perc}.csv"
+        
+        if os.path.exists(act_gz_path):
+            act_path = act_gz_path
+        elif not os.path.exists(act_path):
+            print(f"Error: Neither {act_gz_path} nor {act_path} found.")
+            print(f"Skipping ploting reproducibility by sequencing depth")
+            return
+        
+        activity_df_ds = pd.read_csv(act_path)
 
         merged_df_ds=activity_by_rep_df_ds.merge(activity_df_ds,left_on='cCRE',right_on='cCRE',how='inner',suffixes=("_rep","_act"))
         merged_df_ds['activity_status'].value_counts()
@@ -500,11 +529,23 @@ def plot_gc_content_bias(final_counts_df):
     boxplot_df = boxplot_df.dropna(subset=['GC_Content_label', 'DNA_rep_comb'])
     boxplot_df['gc_bin_center'] = boxplot_df['GC_Content_label'].apply(lambda x: (float(x.left)+float(x.right))/2)
     boxplot_groups = boxplot_df.groupby('gc_bin_center')['DNA_rep_comb'].apply(list)
-    gc_summary = boxplot_df.groupby('GC_Content_label',observed=False)['DNA_rep_comb'].agg(['count','median']).reset_index()
+    gc_summary = boxplot_df.groupby('GC_Content_label', observed=False)['DNA_rep_comb'].agg(['count', 'median']).reset_index()
+    # Filter gc_summary to match only bins with data
+    gc_summary = gc_summary[gc_summary['count'] > 0]
+    # Filter widths to match only bins with data
+    bin_width_dict = {(i.left + i.right)/2: (i.right - i.left)/2 for i in bin_intervals}
+    widths_filtered = [bin_width_dict.get(pos, 0.5) for pos in boxplot_groups.index]
+    
     f, ax_hist = plt.subplots()
-    ax_hist.boxplot(x=boxplot_groups.values,positions=boxplot_groups.index,showfliers=False,widths=bin_widths,
-                    patch_artist=True,boxprops=dict(facecolor=plot_color_pallete['read']),
-        medianprops=dict(color='black', linewidth=1))
+    ax_hist.boxplot(
+        x=boxplot_groups.values,
+        positions=boxplot_groups.index,
+        showfliers=False,
+        widths=widths_filtered,
+        patch_artist=True,
+        boxprops=dict(facecolor=plot_color_pallete['read']),
+        medianprops=dict(color='black', linewidth=1)
+    )
     ax_hist.set_ylabel("Number of reads")
     ax2 = ax_hist.twinx()
     ax2.plot(boxplot_groups.index, gc_summary['count'],
@@ -1137,7 +1178,20 @@ def downsampling_preprocessing(ds_ratio_path):
         perc=round(p,1)
         print(perc)
         rep_path=fr"{ds_ratio_path}/ratio_df_{perc}.csv"
+
+        rep_gz_path = fr"{ds_ratio_path}/ratio_df_{perc}.csv.gz"
+        rep_path = fr"{ds_ratio_path}/ratio_df_{perc}.csv"
+        
+        if os.path.exists(rep_gz_path):
+            rep_path = rep_gz_path
+            
+        elif not os.path.exists(rep_path):
+            print(f"Error: Neither {rep_gz_path} nor {rep_path} found.")
+            print(f"Skipping ploting downsampling preprocessing")
+            return
+        
         activity_by_rep_df_ds = pd.read_csv(rep_path)
+
         activity_by_rep_df_vectorized = activity_by_rep_df_ds[['RNA_rep1','DNA_rep1',
                                                        'RNA_rep2','DNA_rep2',
                                                        'RNA_rep3','DNA_rep3']]

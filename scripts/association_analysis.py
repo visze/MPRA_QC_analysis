@@ -214,10 +214,23 @@ def PCR_bias_GC_plot(final_counts_df):
     boxplot_groups = boxplot_df.groupby('gc_bin_center')['association_count'].apply(list)
 
     gc_summary = boxplot_df.groupby('gc_bin',observed=False)['association_count'].agg(['count','median']).reset_index()
+    
+    # Filter gc_summary to match only bins with data
+    gc_summary = gc_summary[gc_summary['count'] > 0]
+    # Filter widths to match only bins with data
+    bin_width_dict = {(i.left + i.right)/2: (i.right - i.left)/2 for i in bin_intervals}
+    widths_filtered = [bin_width_dict.get(pos, 0.5) for pos in boxplot_groups.index]
+
     f, ax_hist = plt.subplots()
-    ax_hist.boxplot(x=boxplot_groups.values,positions=boxplot_groups.index,showfliers=False,widths=bin_widths,
-                    patch_artist=True,boxprops=dict(facecolor=plot_color_pallete['read']),
-        medianprops=dict(color='black', linewidth=1))
+    ax_hist.boxplot(
+        x=boxplot_groups.values,
+        positions=boxplot_groups.index,
+        showfliers=False,
+        widths=widths_filtered,
+        patch_artist=True,
+        boxprops=dict(facecolor=plot_color_pallete['read']),
+        medianprops=dict(color='black', linewidth=1)
+    )
     ax_hist.set_xticks([bin_edges[0],bin_edges[-1]])
     ax_hist.set_xlabel("GC content")
     ax_hist.set_ylabel("Number of reads")
@@ -343,7 +356,15 @@ def downsampling_analysis(downsampling_perc_list,total_oligos,data_path):
     for p in downsampling_perc_list:
         perc=round(p,1)
         print(perc)
-        path=fr"{data_path}associations_final_{perc}.csv"
+        gz_path = fr"{data_path}/associations_final_{perc}.csv.gz"
+        path=fr"{data_path}/associations_final_{perc}.csv"
+        
+        if os.path.exists(gz_path):
+            path = gz_path
+        elif not os.path.exists(path):
+            print(f"Error: Neither {gz_path} nor {path} found.")
+            print("Skipping downsampling analysis")
+            return
         df=pd.read_csv(path)
         curr_df=downsampling_bc_counts(df)
         curr_df['ds']=perc
