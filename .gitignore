@@ -50,3 +50,12 @@ Thumbs.db
 *.eps
 *.svg
 *.fasta
+*.fa
+
+# ------------------------
+# Snakemake
+# ------------------------
+.snakemake
+!workflow
+!workflow/**
+*results
