@@ -1,0 +1,33 @@
+---
+$schema: "https://json-schema.org/draft/2020-12/schema"
+
+$id: /schemas/config.schema.yaml
+
+description: snakemake configuration file
+
+type: object
+
+properties:
+  project:
+    description: Name of the project.
+    type: string
+    pattern: "^[^/\\.]+$"
+    default: "MPRA_QC_analysis"
+  association:
+    description: Path to the association file, which contains paths to the files needed for the associations step.
+    type: string
+  activity:
+    description: Path to the activity file, which contains paths to the files needed for the activity step.
+    type: string
+additionalProperties: false
+anyOf:
+  - required: 
+    - project
+    - association
+  - required: 
+    - project
+    - activity
+  - required: 
+    - project
+    - association
+    - activity

@@ -1,0 +1,99 @@
+##########################
+#### Version ####
+##########################
+from packaging import version
+
+f = open(workflow.source_path("../version.txt"))
+__version__ = version.parse(f.read().strip())
+
+print(f"\033[95mRunning MPRA QC analysis version {__version__.public}\033[0m")
+
+##########################
+#### containerization ####
+##########################
+
+
+containerized: f"docker://visze/mpra_qc_analysis:{__version__.base_version}"
+
+
+#################
+#### imports ####
+#################
+import pandas as pd
+
+##################
+#### SETTINGS ####
+##################
+
+##### check snakemake min version #####
+from snakemake.utils import min_version
+
+min_version("8.24.1")
+
+
+##### report workflow #####
+report: "report/workflow.rst"
+
+
+##### General wildcard constraints #####
+wildcard_constraints:
+    project="[^/\\.]+",
+
+
+##### localrules #####
+localrules:
+    all,
+    all_association,
+    all_activity,
+
+
+# common workflow
+include: "rules/common.smk"
+
+
+print(f"\033[95mProject:\033[92m {config['project']}\033[0m")
+
+
+###################
+#### ALL RULES ####
+###################
+
+
+rule all:
+    """
+    General all rule to get all output files for MPRA QC analysis (default rule).
+    """
+    input:
+        f"results/{config['project']}/association.done"
+        if "association" in config
+        else [],
+        f"results/{config['project']}/activity.done" if "activity" in config else [],
+
+
+rule all_association:
+    """
+    All rule to get all output files for the association workflow.
+    """
+    input:
+        f"results/{config['project']}/association.done"
+        if "association" in config
+        else [],
+
+
+rule all_activity:
+    """
+    All rule to get all output files for the activity workflow.
+    """
+    input:
+        f"results/{config['project']}/activity.done" if "activity" in config else [],
+
+
+###################
+## SUB-WORKFLOWS ##
+###################
+
+
+# association workflow
+include: "rules/association.smk"
+# activity workflow
+include: "rules/activity.smk"
