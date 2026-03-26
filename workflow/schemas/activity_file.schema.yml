@@ -1,0 +1,22 @@
+---
+$schema: "https://json-schema.org/draft/2020-12/schema"
+
+$id: /schemas/activity_file.schema.yaml
+
+description: Activity file, which contains paths to the files needed for the activity step.
+
+type: object
+
+# columns that the config/samples.tsv file can have and which type they should be
+properties:
+  file:
+    type: string
+    enum: ["cCRE_fasta", "activity_df", "different_std_threshold_analysis", "downsampling_activity_path", "downsampling_ratio_path", "comparative_df", "AI_df", "AI_comparative_df", "allelic_pairs_df", "allelic_pairs_replicates_df", "cell_types_df", "control_df", "output_path"]
+    description: File type, e.g. cCRE_fasta, activity_df, different_std_threshold_analysis, downsampling_activity_path, downsampling_ratio_path, comparative_df, AI_df, AI_comparative_df, allelic_pairs_df, allelic_pairs_replicates_df, cell_types_df, control_df, or output_path.
+  path:
+    type: string
+    description: Path to the file.
+required:
+  - file
+  - path
+additionalProperties: false

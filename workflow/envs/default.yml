@@ -1,0 +1,14 @@
+---
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - biopython
+  - matplotlib
+  - numpy
+  - pandas
+  - pysam
+  - regex
+  - scikit-learn
+  - scipy
+  - seaborn
