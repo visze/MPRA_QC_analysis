@@ -61,29 +61,41 @@ print(f"\033[95mProject:\033[92m {config['project']}\033[0m")
 
 rule all:
     """
-    General all rule to get all output files for MPRA QC analysis (default rule).
-    """
+General all rule to get all output files for MPRA QC analysis (default rule).
+"""
     input:
-        f"results/{config['project']}/association.done"
-        if "association" in config
-        else [],
+        expand(
+            "results/{project}/association/{plot}.{file_type}",
+            plot=get_association_before_promiscuity_plots(association_files)
+            + get_association_downsampling_plots(association_files)
+            + get_association_before_minimum_observations_plots(association_files)
+            + get_association_final_plots(association_files),
+            file_type=["pdf", "eps", "png", "svg"],
+            project=config["project"],
+        ),
         f"results/{config['project']}/activity.done" if "activity" in config else [],
 
 
 rule all_association:
     """
-    All rule to get all output files for the association workflow.
-    """
+All rule to get all output files for the association workflow.
+"""
     input:
-        f"results/{config['project']}/association.done"
-        if "association" in config
-        else [],
+        expand(
+            "results/{{project}}/association/{plot}.{file_type}",
+            plot=get_association_before_promiscuity_plots(association_files)
+            + get_association_downsampling_plots(association_files)
+            + get_association_before_minimum_observations_plots(association_files)
+            + get_association_final_plots(association_files),
+            file_type=["pdf", "eps", "png", "svg"],
+            project=config["project"],
+        ),
 
 
 rule all_activity:
     """
-    All rule to get all output files for the activity workflow.
-    """
+All rule to get all output files for the activity workflow.
+"""
     input:
         f"results/{config['project']}/activity.done" if "activity" in config else [],
 

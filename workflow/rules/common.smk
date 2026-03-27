@@ -40,12 +40,14 @@ else:
     validate(config, schema="../schemas/config.schema.yml")
 
 # load sample sheets
+association_files = pd.DataFrame()
+activity_files = pd.DataFrame()
 if "association" in config:
-    experiment = pd.read_csv(config["association"], delimiter="\t")
-    validate(experiment, schema="../schemas/association_file.schema.yml")
+    association_files = pd.read_csv(config["association"], delimiter="\t")
+    validate(association_files, schema="../schemas/association_file.schema.yml")
 if "activity" in config:
-    experiment = pd.read_csv(config["activity"], delimiter="\t")
-    validate(experiment, schema="../schemas/activity_file.schema.yml")
+    activity_files = pd.read_csv(config["activity"], delimiter="\t")
+    validate(activity_files, schema="../schemas/activity_file.schema.yml")
 
 
 ################################
@@ -54,37 +56,56 @@ if "activity" in config:
 
 
 ##### Exceptions #####
-class MissingAssignmentInConfigException(Exception):
-    """
-    Exception raised for if no assignment file is set in the config.
-
-    Args:
-        Exception ([type]): Exception class cast
-
-    Attributes:
-        config_name (string): name of the configuration which assignment is missing.
-    """
-
-    def __init__(self, config_name):
-        self.config_name = config_name
-
-    def __str__(self):
-        return "Config %s has no assignment file defined!" % (self.config_name)
 
 
-class MissingVariantInConfigException(Exception):
-    """
-    Exception raised for if no variants config.
+##### Helpers #####
 
-    Args:
-        Exception ([type]): Exception class cast
 
-    Attributes:
-        config_name (string): name of the configuration which assignment is missing.
-    """
+def get_association_final_plots(association_df: pd.DataFrame) -> list:
 
-    def __init__(self, config_name):
-        self.config_name = config_name
+    if association_df.empty:
+        return []
+    else:
+        if (
+            "cCRE_fasta" in association_df["file"].values
+            and "final_associations" in association_df["file"].values
+        ):
+            return [
+                "BCs_per_cCRE",
+                "Retained_cCREs",
+                "PCR_bias_GC",
+                "PCR_bias_G_stretches",
+            ]
+    return []
 
-    def __str__(self):
-        return "Config %s has no variants defined!" % (self.config_name)
+
+def get_association_before_minimum_observations_plots(
+    association_df: pd.DataFrame,
+) -> list:
+
+    if association_df.empty:
+        return []
+    else:
+        if "associations_before_minimum_observations" in association_df["file"].values:
+            return ["Reads_per_association"]
+    return []
+
+
+def get_association_before_promiscuity_plots(association_df: pd.DataFrame) -> list:
+
+    if association_df.empty:
+        return []
+    else:
+        if "associations_before_promiscuity" in association_df["file"].values:
+            return ["cCREs_per_BC"]
+    return []
+
+
+def get_association_downsampling_plots(association_df: pd.DataFrame) -> list:
+
+    if association_df.empty:
+        return []
+    else:
+        if "associations_downsampling_path" in association_df["file"].values:
+            return ["Downsampling_Retained_cCREs", "Downsampling_Barcodes_per_cCRE"]
+    return []

@@ -1,16 +1,13 @@
 rule activity:
-    """
-    Activity workflow to perform the activity step of the MPRA QC analysis.
-    """
-    conda:
-        getCondaEnv("default.yml")
     input:
         activity_file=config["activity"] if "activity" in config else [],
         script=getScript("activity_analysis.py"),
         const=getScript("const.py"),
     output:
         touch("results/{project}/activity.done"),
+    conda:
+        getCondaEnv("default.yml")
     shell:
         """
-        python {input.script} {input.activity_file}
+        python {input.script} run run-all --config {input.activity_file}
         """
