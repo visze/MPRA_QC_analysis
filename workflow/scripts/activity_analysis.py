@@ -707,7 +707,7 @@ def plot_activity_statistic_vs_count_ratio(act_df, output_path):
     const.save_fig(fig, "Activity_statistic_vs_count_ratio", output_path)
 
 
-def downsampling_preprocessing(ds_ratio_path: str):
+def downsampling_preprocessing(ds_ratio_path: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     downsampling_perc_list = np.arange(0.1, 1.01, 0.1)
     results_list = []
     for p in downsampling_perc_list:
@@ -722,9 +722,7 @@ def downsampling_preprocessing(ds_ratio_path: str):
             rep_path = rep_gz_path
 
         elif not os.path.exists(rep_path):
-            print(f"Error: Neither {rep_gz_path} nor {rep_path} found.")
-            print(f"Skipping ploting downsampling preprocessing")
-            return
+            raise FileNotFoundError(f"Neither {rep_gz_path} nor {rep_path} found.")
 
         activity_by_rep_df_ds = pd.read_csv(rep_path)
 
@@ -1321,7 +1319,10 @@ def reproducibility_by_sequencing_depth(downsampling_ratio_path: str, output_pat
         downsampling_ratio_path (str): Path to the downsampling ratio data.
         output_path (str): Path to the output directory for MPRA QC analysis results.
     """
-
-    ds_ccre_df, ds_barcode_df = downsampling_preprocessing(downsampling_ratio_path)
-    plot_BC_retention_by_DNA_RNA_sequencing_depth(ds_barcode_df, output_path)
-    plot_cCRE_retention_by_DNA_RNA_sequencing_depth(ds_ccre_df, output_path)
+    try:
+        ds_ccre_df, ds_barcode_df = downsampling_preprocessing(downsampling_ratio_path)
+        plot_BC_retention_by_DNA_RNA_sequencing_depth(ds_barcode_df, output_path)
+        plot_cCRE_retention_by_DNA_RNA_sequencing_depth(ds_ccre_df, output_path)
+    except FileNotFoundError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise
