@@ -78,7 +78,7 @@ General all rule to get all output files for MPRA QC analysis (default rule).
             "results/{project}/activity/{plot}.{file_type}",
             plot=get_activity_main_plots(activity_files)
             + get_activity_control_boxplots_plots(activity_files)
-            + get_activity_replicability_by_activity_plots(activity_files)
+            # + get_activity_replicability_by_activity_plots(activity_files)
             + get_activity_gc_content_bias_plots(activity_files)
             # + get_activity_ratio_correlation_between_replicates_plots(activity_files)
             + get_activity_ratio_correlation_with_controls_plots(activity_files)
@@ -126,7 +126,7 @@ All rule to get all output files for the activity workflow.
             "results/{project}/activity/{plot}.{file_type}",
             plot=get_activity_main_plots(activity_files)
             + get_activity_control_boxplots_plots(activity_files)
-            + get_activity_replicability_by_activity_plots(activity_files)
+            # + get_activity_replicability_by_activity_plots(activity_files)
             + get_activity_gc_content_bias_plots(activity_files)
             # + get_activity_ratio_correlation_between_replicates_plots(activity_files)
             + get_activity_ratio_correlation_with_controls_plots(activity_files)
