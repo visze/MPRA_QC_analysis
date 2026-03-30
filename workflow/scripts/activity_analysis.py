@@ -975,7 +975,7 @@ def prediction_vs_differential_activity(differential_activity_prediction_path: s
     "--differential-activity",
     "differential_activity_path",
     required=True,
-    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
+    type=click.Path(exists=True, readable=True),
     help="Path to the differential activity data.",
 )
 @click.option(
