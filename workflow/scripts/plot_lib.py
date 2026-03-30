@@ -1,30 +1,44 @@
-from const import plot_color_pallete
-from const import set_equal_plot_limits
-from const import custom_cmap_bolder
-from const import pos_active_ctrl_color, neg_active_ctrl_color, highlight_color, custom_cmap
+import math
 
-import pandas as pd
-import numpy as np
-from scipy.optimize import curve_fit
-from scipy import stats
-from scipy.stats import gaussian_kde
-from scipy.stats import pearsonr
-from scipy.stats import spearmanr
-
-from matplotlib.figure import Figure
-from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-from matplotlib.lines import Line2D
-from matplotlib.colors import LogNorm
 import matplotlib.ticker as mtick
-from matplotlib.colors import to_rgba
+import numpy as np
+import pandas as pd
 import seaborn as sns
+from const import (
+    custom_cmap,
+    custom_cmap_bolder,
+    highlight_color,
+    neg_active_ctrl_color,
+    plot_color_pallete,
+    pos_active_ctrl_color,
+    set_equal_plot_limits,
+)
+from matplotlib.axes import Axes
+from matplotlib.colors import LogNorm, to_rgba
+from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
+from scipy import stats
+from scipy.optimize import curve_fit
+from scipy.stats import gaussian_kde, pearsonr, spearmanr
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 m_palette = {
     "RNA": "o",
     "DNA": "D",
 }
+
+screen_ccre_colors = {
+    "Promoter": "#D63B30",  # strong red – promoter‐like signature
+    "Proximal Enhancer": "#D36728",  # dark orange – proximal enhancer‐like signature
+    "Distal Enhancer": "#F8BE35",  # gold/yellow – distal enhancer‐like signature
+    "DNase-H3K4me3": "#8DBCE2",  # (light) blue – (novel promoters/poised enhancers)
+    "DNase-only": "#4383B6",  # grey – DNase only open chromatin
+    "Heterochromatin": "#D3D3D3",  # light grey – low DNase signal / inactive
+}
+
 
 def _hill_model(x: np.ndarray, a: float, b: float, n: float) -> np.ndarray:
     return a * x**n / (b**n + x**n)
@@ -390,6 +404,7 @@ def ratio_correlation_between_replicates_plot(activity_by_rep: pd.DataFrame, sho
 
     return fig, ax
 
+
 def ratio_correlation_with_controls_plot(activity_by_rep, neg, pos):
 
     activity_by_rep = activity_by_rep.replace([np.inf, -np.inf], np.nan)
@@ -452,9 +467,10 @@ def ratio_correlation_with_controls_plot(activity_by_rep, neg, pos):
     ax.legend()
     return fig, ax
 
+
 def activity_distribution_plot(act_df: pd.DataFrame) -> tuple[Figure, Axes]:
     fig, ax = plt.subplots()
-    bin_edges = np.linspace(-4, 4, 201)   # 100 bins between -10 and 20
+    bin_edges = np.linspace(-4, 4, 201)  # 100 bins between -10 and 20
     ax.hist(
         act_df["RNA_DNA_ratio_log_rep_comb"],
         bins=bin_edges,
@@ -568,6 +584,7 @@ def rna_dna_ratio_hexbin_plot(act_df, DNA_counts, RNA_counts) -> tuple[Figure, A
 
     return fig, ax
 
+
 def control_boxplots_plot(act_df, neg, pos, test):
 
     annot_df = act_df.copy()
@@ -581,7 +598,6 @@ def control_boxplots_plot(act_df, neg, pos, test):
     test_color = "#BBA9D2"
     annot_df = annot_df.dropna(subset=["control_annotation"])
 
-
     fig, ax = plt.subplots()
     sns.boxplot(
         data=annot_df,
@@ -590,6 +606,7 @@ def control_boxplots_plot(act_df, neg, pos, test):
         hue="control_annotation",
         palette={"PosCtrl": pos_color, "NegCtrl": neg_color, "Test": test_color},
         showfliers=False,
+        ax=ax,
     )
 
     ax.set_xlabel("Activity statistic")
@@ -597,11 +614,13 @@ def control_boxplots_plot(act_df, neg, pos, test):
 
     xticks = ax.get_xticks()
     ax.set_xticks([xticks[0], xticks[-1]])
-    
+
     return fig, ax
+
 
 def scale(n, n_max):
     return 30 + 200 * np.sqrt(n / n_max)
+
 
 def merge_edge_bins(x, edges, min_count):
     """
@@ -643,6 +662,7 @@ def merge_edge_bins(x, edges, min_count):
             break
 
     return edges
+
 
 def replicability_by_activity_plot(activity_by_rep: pd.DataFrame, act_df: pd.DataFrame) -> tuple[Figure, Axes]:
     merged_df = activity_by_rep.merge(act_df, left_on="cCRE", right_on="cCRE", how="inner")
@@ -757,8 +777,9 @@ def replicability_by_activity_plot(activity_by_rep: pd.DataFrame, act_df: pd.Dat
     ax1.legend(handles=handles, labels=labels, title="Number of cCREs", frameon=False)
 
     fig.tight_layout()
-    
+
     return fig, ax1
+
 
 def gc_content_bias_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
     bin_sizes = final_counts_df.reset_index().groupby("GC_Content_label")["index"].nunique()
@@ -807,6 +828,7 @@ def gc_content_bias_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
     f.set_size_inches(8, 8)
     return f, ax_hist
 
+
 def activity_statistic_vs_count_ratio_plot(act_df: pd.DataFrame, min_DNA_reads: int) -> tuple[Figure, Axes]:
     curr_activity_df = act_df.copy()
     # Drop rows where either col has NaN or Inf
@@ -826,21 +848,20 @@ def activity_statistic_vs_count_ratio_plot(act_df: pd.DataFrame, min_DNA_reads: 
     max_density_threshold = 10
     # Clip values in density before coloring
     density_capped = np.clip(density, a_min=None, a_max=max_density_threshold)
-    
+
     fig, ax = plt.subplots()
     ax.scatter(x, y, c=density_capped, cmap=custom_cmap_bolder, s=10, edgecolors="none")  # use capped values
-    
+
     ax.set_xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$")
     ax.set_ylabel(r"Activity score")
     ax.text(0.95, 0.05, s=rf"r= {round(r,3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
     # ax.set_xlim(-4, 6)
     # ax.set_ylim(-4, 6)
-    xticks = ax.get_xticks()
-    yticks = ax.get_yticks()
     ax.set_xticks([np.round(x.min()), np.round(x.max())])
     ax.set_yticks([np.round(y.min()), np.round(y.max())])
 
     return fig, ax
+
 
 def activity_downsampling_plot(summary_df: pd.DataFrame) -> tuple[Figure, Axes]:
     fig, ax = plt.subplots()
@@ -869,7 +890,7 @@ def reproducibility_by_sequencing_depth_plot(summary_df: pd.DataFrame) -> tuple[
     return fig, ax
 
 
-def bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc):
+def bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc: pd.DataFrame) -> tuple[Figure, Axes]:
     x_arr_DNA = reps_sampling_df_bc[reps_sampling_df_bc["measurement"] == "DNA"]["Sampling_parameter"].to_numpy(dtype=float)
     y_arr_DNA = reps_sampling_df_bc[reps_sampling_df_bc["measurement"] == "DNA"]["fraction"].to_numpy(dtype=float)
 
@@ -958,8 +979,7 @@ def bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc):
     return fig, ax
 
 
-
-def ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre):
+def ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre: pd.DataFrame) -> tuple[Figure, Axes]:
     x_arr_DNA = reps_sampling_df_ccre[reps_sampling_df_ccre["measurement"] == "DNA"]["Sampling_parameter"].to_numpy(
         dtype=float
     )
@@ -1046,4 +1066,426 @@ def ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre):
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1.0, decimals=0))
     ax.set_ylim(0, 1)
 
+    return fig, ax
+
+
+def minimizing_noise_hexbin_plot(noise_df: pd.DataFrame) -> tuple[Figure, Axes]:
+    # Define parameters
+    outlier_filters = ["no_filter", "filtered_std3", "filtered_std2"]
+    dna_thresholds = [0, 10, 25]
+    reps = ["rep1", "rep2", "rep3"]
+
+    # Plot settings
+    gridsize = 100
+    xlim = (-3, 6.5)
+    ylim = (-3, 6.5)
+    extent = [xlim[0], xlim[1], ylim[0], ylim[1]]  # keep binning consistent across axes
+    mincnt = 1  # only draw hexbins that contain points
+
+    # Create subplot grid
+    fig, axes = plt.subplots(len(dna_thresholds), len(outlier_filters), figsize=(10, 8), constrained_layout=True)
+
+    # Store hexbins so we can set a shared normalization + colorbar afterwards
+    hbs = []
+    global_max_count = 0.0
+
+    label_map = {
+        "no_filter": "No outlier removal",
+        "filtered_std3": "Outlier removal >3 SD",
+        "filtered_std2": "Outlier removal >2 SD",
+    }
+
+    for n, outlier_filter in enumerate(outlier_filters):
+        for m, threshold in enumerate(dna_thresholds):
+
+            ax = axes[m, n]
+
+            # Mask by DNA threshold (use np.nan to keep numeric dtype)
+            for rep in reps:
+                noise_df[f"ratio_{outlier_filter}_{rep}_DNA_{threshold}"] = noise_df[
+                    f"ratio_log_{outlier_filter}_{rep}"
+                ].where(noise_df[f"DNA_{outlier_filter}_sum_{rep}"] >= threshold, np.nan)
+
+            # Drop NaNs
+            df_plot = noise_df.dropna(
+                subset=[f"ratio_{outlier_filter}_rep1_DNA_{threshold}", f"ratio_{outlier_filter}_rep2_DNA_{threshold}"]
+            )
+
+            x = df_plot[f"ratio_{outlier_filter}_rep1_DNA_{threshold}"].to_numpy(dtype=float)
+            y = df_plot[f"ratio_{outlier_filter}_rep2_DNA_{threshold}"].to_numpy(dtype=float)
+
+            hb = None
+            if x.size > 0 and y.size > 0:
+                hb = ax.hexbin(
+                    x,
+                    y,
+                    gridsize=gridsize,
+                    extent=extent,
+                    mincnt=mincnt,
+                    cmap=custom_cmap_bolder,
+                    linewidths=0,
+                    edgecolors="none",
+                    # NOTE: we’ll apply a shared LogNorm AFTER we know global max
+                )
+
+                # Track global max count across panels for shared color scaling
+                panel_max = float(np.nanmax(hb.get_array())) if hb.get_array().size else 0.0
+                global_max_count = max(global_max_count, panel_max)
+
+            hbs.append(hb)
+
+            # --- Square aspect ratio and limits ---
+            ax.set_xlim(*xlim)
+            ax.set_ylim(*ylim)
+            ax.set_aspect("equal", adjustable="box")
+
+            # Remove ticks
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+            # Label only outer edges
+            if m == len(dna_thresholds) - 1:
+                ax.set_xlabel(label_map[outlier_filter], fontsize=15)
+            if n == 0:
+                ax.set_ylabel(f"DNA≥{threshold}", fontsize=15)
+
+    # Apply shared log normalization (consistent across all panels)
+    # If there's any data, make a single colorbar for the whole figure.
+    if global_max_count >= 1:
+        norm = LogNorm(vmin=1, vmax=global_max_count)
+
+        # Set norm on all non-empty hexbins
+        for hb in hbs:
+            if hb is not None:
+                hb.set_norm(norm)
+
+        # Create ONE shared colorbar using the first non-empty hexbin as the mappable
+        first_hb = next((hb for hb in hbs if hb is not None), None)
+        if first_hb is not None:
+            cbar = fig.colorbar(first_hb, ax=axes, fraction=0.03, pad=0.02)
+            cbar.set_label("Hexbin count (log scale)")
+    return fig, axes
+
+
+def cCRE_annotation_by_activity_plot(annotated_screen_df) -> tuple[Figure, Axes]:
+
+    annotated_screen_df = annotated_screen_df.copy()
+    annotated_screen_df["mask"] = annotated_screen_df["activity_status"].apply(lambda x: True if x == "active" else False)
+    qbins = pd.qcut(
+        annotated_screen_df.loc[annotated_screen_df["mask"], "activity_statistic"], q=5, labels=[f"Q{i}" for i in range(1, 6)]
+    )
+    annotated_screen_df["bin"] = "Inactive"
+    annotated_screen_df.loc[annotated_screen_df["mask"], "bin"] = qbins
+    counts_df = pd.DataFrame(annotated_screen_df.groupby("bin")["class"].value_counts())
+    counts_df = counts_df.reset_index()
+    counts_df_wide = counts_df.pivot(index="bin", columns=["class"], values="count")
+    counts_df_wide = counts_df_wide.reset_index()
+    counts_df_wide_prop = counts_df_wide.iloc[:, 1:].apply(lambda x: x / x.sum(), axis=1)
+    counts_df_wide_prop["bin"] = counts_df_wide["bin"]
+    bin_order = ["Inactive", "Q1", "Q2", "Q3", "Q4", "Q5"]
+    counts_df_wide_prop["bin"] = pd.Categorical(counts_df_wide_prop["bin"], categories=bin_order, ordered=True)
+    counts_df_wide_prop = counts_df_wide_prop.sort_values("bin")
+    counts_df_wide_prop = counts_df_wide_prop[
+        ["Promoter", "Proximal Enhancer", "Distal Enhancer", "DNase-H3K4me3", "DNase-only", "Heterochromatin", "bin"]
+    ]
+
+    fig, ax = plt.subplots()
+    ax = counts_df_wide_prop.plot(x="bin", kind="bar", stacked=True, color=screen_ccre_colors, ax=ax)
+
+    # move legend to the side
+    ax.legend(
+        title="Chromatin mark",
+        loc="center left",  # anchor relative to axes bbox
+        bbox_to_anchor=(1.02, 0.5),  # x>1 pushes it outside to the right
+        frameon=False,
+    )
+    ax.set_xlabel("Activity quantile")
+    formatter = mtick.PercentFormatter(xmax=1.0)
+    ax.yaxis.set_major_formatter(formatter)
+    ax.set_yticks([0, 1])
+
+    ax.set_ylabel("cCREs (%)")
+    return fig, ax
+
+
+def distance_to_tss_by_activity_plot(dist_df: pd.DataFrame) -> tuple[Figure, Axes]:
+
+    dist_df["mask"] = dist_df["activity_status"].apply(lambda x: True if x == "active" else False)
+    qbins = pd.qcut(dist_df.loc[dist_df["mask"], "activity_statistic"], q=5, labels=[f"Q{i}" for i in range(1, 6)])
+    dist_df["bin"] = "Inactive"
+    dist_df.loc[dist_df["mask"], "bin"] = qbins
+    bin_order = ["Inactive", "Q1", "Q2", "Q3", "Q4", "Q5"]
+
+    fig, ax_box = plt.subplots(figsize=(4, 8))
+    sns.boxplot(
+        data=dist_df,
+        x="bin",
+        y="log10_distance",
+        showfliers=False,
+        color=plot_color_pallete["cCRE"],
+        ax=ax_box,
+        order=bin_order,
+        medianprops={"color": "#FFFFFF", "linewidth": 2},
+    )
+    ax_box.set_ylabel(r"Distance from TSS (bp, $\mathbf{log_{2}}\!$)")
+    ax_box.set_xlabel("Activity quantile")
+    ax_box.tick_params(axis="x", labelrotation=90)
+
+    ax_box.set_yticks([ax_box.get_yticks()[1], ax_box.get_yticks()[-1]])
+
+    return fig, ax_box
+
+
+def ai_predictions_vs_activity_hexbin_plot(AI_pred_df: pd.DataFrame, colorbar: bool) -> tuple[Figure, Axes]:
+    y = np.asarray(AI_pred_df["exp: MPRA_activity"].values)
+    x = np.asarray(AI_pred_df["AI: predicted_activity"].values)
+
+    r = pearsonr(x, y)[0]
+    fig, ax_scat = plt.subplots()
+    hb = ax_scat.hexbin(
+        x,
+        y,
+        gridsize=200,
+        cmap=custom_cmap_bolder,
+        mincnt=1,
+        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
+        linewidths=0,
+    )
+    ax_scat.set_xlabel("AI-predicted activity")
+    ax_scat.set_ylabel("Experimentally measured activity")
+    ax_scat.text(
+        0.05, 0.95, s=rf"r= {round(r,3)}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
+    )
+    if colorbar:
+        cbar = plt.colorbar(hb, ax=ax_scat)
+        cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
+
+    return fig, ax_scat
+
+
+def ai_predictions_vs_differential_activity_hexbin_plot(
+    AI_comparative_pred_df: pd.DataFrame, colorbar: bool
+) -> tuple[Figure, Axes]:
+    plt.clf()
+    y = np.asarray(AI_comparative_pred_df["LFC - exp"].values)
+    x = np.asarray(AI_comparative_pred_df["LFC - AI"].values)
+    # Create the KDE (Kernel Density Estimate)
+    r = pearsonr(x, y)[0]
+    fig, ax_scat = plt.subplots()
+    hb = ax_scat.hexbin(
+        x,
+        y,
+        gridsize=200,
+        cmap=custom_cmap_bolder,
+        mincnt=1,
+        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
+        linewidths=0,
+    )
+    ax_scat.set_xlabel("AI-predicted differential activity")
+    ax_scat.set_ylabel("Experimentally measured differential activity")
+    ax_scat.text(
+        0.05, 0.95, s=rf"r= {round(r, 3)}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
+    )
+    if colorbar:
+        cbar = plt.colorbar(hb, ax=ax_scat)
+        cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
+
+    return fig, ax_scat
+
+
+def differential_activity_distribution_plot(comparative_df: pd.DataFrame) -> tuple[Figure, Axes]:
+
+    def round_down(num, dec=0):
+        mult = 10**dec
+        return math.floor(num * mult) / mult
+
+    def round_up(num, dec=0):
+        mult = 10**dec
+        return math.ceil(num * mult) / mult
+
+    max_lim = round_up(comparative_df["logFC"].max(), 2)
+    min_lim = round_down(comparative_df["logFC"].min(), 2)
+    bins = np.arange(min_lim, max_lim, 0.05)
+
+    fig, ax = plt.subplots()
+    comparative_df["logFC"].hist(color="gray", bins=bins, label="Active", grid=False, ax=ax)
+    comparative_df.loc[comparative_df["differentialy_active"] == True, "logFC"].hist(
+        color="red", bins=bins, label="Differentially active", grid=False, ax=ax
+    )
+    ax.set_xlabel("Fold Change, log2")
+    ax.set_ylabel("#cCREs")
+    # ax.set_title("Modern Human-derived MethMPRA results in osteoblasts")
+    ax.legend(loc="best")
+    return fig, ax
+
+
+def differential_activity_volcano_plot(comparative_df: pd.DataFrame, zoom: bool) -> tuple[Figure, Axes]:
+    p_thresh = 0.05
+    lfc_thresh = 0
+    fig, ax = plt.subplots()
+    comparative_df["neglog10p"] = -np.log10(comparative_df["differential_activity_FDR"])
+    # classify points
+    sig = (comparative_df["differential_activity_FDR"] < p_thresh) & (np.abs(comparative_df["logFC"]) >= lfc_thresh)
+    up = sig & (comparative_df["logFC"] >= lfc_thresh)
+    down = sig & (comparative_df["logFC"] <= -lfc_thresh)
+    ns = ~sig
+    # scatter (two colors for up/down + grey for NS)
+    ax.scatter(
+        comparative_df.loc[ns, "logFC"],
+        comparative_df.loc[ns, "neglog10p"],
+        color="lightgray",
+        s=12,
+        alpha=0.5,
+        label="Active",
+    )
+    ax.scatter(comparative_df.loc[up, "logFC"], comparative_df.loc[up, "neglog10p"], color="gold", s=12, alpha=0.8, label="Up")
+    ax.scatter(
+        comparative_df.loc[down, "logFC"],
+        comparative_df.loc[down, "neglog10p"],
+        color="slateblue",
+        s=12,
+        alpha=0.8,
+        label="Down",
+    )
+    ax.axhline(-np.log10(p_thresh), linestyle="--", linewidth=1)
+    ax.set_xlabel("logFC")
+    ax.set_ylabel(f"-log10(FDR)")
+    ax.set_xlim(np.floor(comparative_df["logFC"].min()), np.ceil(comparative_df["logFC"].max()))
+    ax.legend(loc="upper right", frameon=False)
+
+    if zoom:
+        ax.set_ylim(-1, 10)
+
+    return fig, ax
+
+
+def allelic_pairs_hexbin_plot(pair_df: pd.DataFrame, colorbar: bool) -> tuple[Figure, Axes]:
+    x = np.asarray(pair_df["allele1"].values)
+    y = np.asarray(pair_df["allele2"].values)
+    fig, ax = plt.subplots()
+
+    hb = ax.hexbin(
+        x,
+        y,
+        gridsize=200,
+        cmap=custom_cmap_bolder,
+        mincnt=1,
+        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
+        linewidths=0,
+    )
+
+    ax.set_xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allele 1")
+    ax.set_ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allele 2")
+
+    r = pearsonr(x, y)[0]
+    ax.text(0.05, 0.95, s=rf"r= {round(r, 3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
+
+    ax.set_xticks([np.round(x.min()), np.round(x.max())])
+    ax.set_yticks([np.round(y.min()), np.round(y.max())])
+
+    if colorbar:
+        cbar = plt.colorbar(hb, ax=ax)
+        cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
+
+    return fig, ax
+
+
+def cell_types_hexbin_plot(cell_type_df: pd.DataFrame, colorbar: bool) -> tuple[Figure, Axes]:
+    x = cell_type_df["RNA_DNA_ratio_log_cell1"]
+    y = cell_type_df["RNA_DNA_ratio_log_cell2"]
+
+    fig, ax = plt.subplots()
+    hb = ax.hexbin(
+        x,
+        y,
+        gridsize=125,
+        cmap=custom_cmap_bolder,
+        mincnt=1,
+        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
+        linewidths=0,
+    )
+
+    # cbar = plt.colorbar(hb)
+    # cbar.set_label('log10(count) per hexbin')  # or 'log10(count)' if using LogNorm
+
+    ax.set_xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ Cell type 1")
+    ax.set_ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ Cell type 2")
+    r, p = pearsonr(x, y)
+    ax.text(0.90, 0.05, s=rf"r= {round(r, 3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
+    ax.set_xticks([np.round(x.min()), np.round(x.max())])
+    ax.set_yticks([np.round(y.min()), np.round(y.max())])
+
+    if colorbar:
+        cbar = plt.colorbar(hb, ax=ax)
+        cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
+
+    return fig, ax
+
+
+def diff_activity_corr_reps_hexbin_plot(pair_rep_df: pd.DataFrame, colorbar: bool) -> tuple[Figure, Axes]:
+    x = np.asarray(pair_rep_df["LFC_rep1"].values)
+    y = np.asarray(pair_rep_df["LFC_rep2"].values)
+    fig, ax = plt.subplots()
+
+    hb = ax.hexbin(
+        x,
+        y,
+        gridsize=200,
+        cmap=custom_cmap_bolder,
+        mincnt=1,
+        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
+        linewidths=0,
+    )
+
+    ax.set_xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allelic difference")
+    ax.set_ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allelic difference")
+    r = pearsonr(x, y)[0]
+    ax.text(0.05, 0.95, s=rf"r= {round(r, 3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
+
+    ax.set_xticks([np.floor(x.min()), np.ceil(x.max())])
+    ax.set_yticks([np.floor(y.min()), np.ceil(y.max())])
+
+    if colorbar:
+        cbar = plt.colorbar(hb, ax=ax)
+        cbar.set_label("Number of observations per hexagon")  # or 'log10(count)' if using LogNorm
+
+    return fig, ax
+
+
+def sample_clustering_plot(reads_df: pd.DataFrame, metadata_df: pd.DataFrame) -> tuple[Figure, Axes]:
+    pca_input = reads_df.copy()
+    groups = metadata_df["Group"].values
+
+    # Transpose for PCA (samples = columns in R)
+    X = pca_input.T.values
+    X_scaled = StandardScaler().fit_transform(X)
+
+    pca = PCA()
+    pcs = pca.fit_transform(X_scaled)
+
+    # Variance explained
+    var_explained = pca.explained_variance_ratio_ * 100  # %
+
+    # Build dataframe for plotting
+    pca_df = pd.DataFrame(pcs, columns=[f"PC{i+1}" for i in range(pcs.shape[1])])
+    pca_df["group"] = groups
+
+    # Plot PC1 vs PC2
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax = sns.scatterplot(data=pca_df, x="PC1", y="PC2", hue="group", style="group", s=80, ax=ax)
+
+    # Rename legend labels
+    new_labels = metadata_df["Group"].unique()
+    handles, new_labels = ax.get_legend_handles_labels()
+    ax.legend(handles=handles[0:], labels=new_labels, title="Cell type")
+
+    # Axis labels with variance explained
+    ax.set_xlabel(f"PC1 ({var_explained[0]:.1f}%)")
+    ax.set_ylabel(f"PC2 ({var_explained[1]:.1f}%)")
+
+    # Remove tick labels for cleaner look
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    fig.tight_layout()
     return fig, ax

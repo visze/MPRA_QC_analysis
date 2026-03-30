@@ -13,9 +13,9 @@
 # •	Input paths
 
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
+from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.figure import Figure
 
 # Standard font size and family
 FONT_SIZE_small: int = 18  # changed from 16 NM 06-02-2025

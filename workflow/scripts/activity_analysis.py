@@ -1,51 +1,20 @@
-import click
-import pandas as pd
-from Bio import SeqIO
-import sys
+import ast  # for safe eveal, for parsing some of the data
 import os
-from ast import literal_eval
-import numpy as np
-import json
+
+import click
+import const  # to reload use import(importlib) and then importlib.reload(const)
 
 # For plotting
-from matplotlib.colors import LinearSegmentedColormap
-import matplotlib
 import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.colors import LogNorm
-from matplotlib.colors import to_rgba
+import numpy as np
+import pandas as pd
+import plot_lib
+from Bio import SeqIO
 
 # For statistics
-from sklearn.mixture import GaussianMixture
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-from scipy import stats
-from scipy.stats import gaussian_kde
 from scipy.stats import pearsonr
-from scipy.stats import spearmanr
-
-import re
-from Bio import SeqIO
-import ast  # for safe eveal, for parsing some of the data
-import math
-
-import const  # to reload use import(importlib) and then importlib.reload(const)
-from const import pos_active_ctrl_color, neg_active_ctrl_color, highlight_color, custom_cmap
-from const import set_equal_plot_limits
-from const import plot_color_pallete
-from const import custom_cmap_bolder
-from const import FONT_SIZE_small
-from workflow.scripts import plot_lib
 
 const.set_plot_style()
-import matplotlib.ticker as mtick
-from matplotlib.lines import Line2D
-from scipy.optimize import curve_fit
-
-# to reload consts without restarting kernel
-# import importlib
-# importlib.reload(const)
-
 
 # Use CPM normalization?
 cpm = True
@@ -204,14 +173,14 @@ def melt_df(df: pd.DataFrame) -> pd.DataFrame:
     return results_melted_df
 
 
-def plot_retained_cCREs_and_barcodes(result_melted_df, output_path: str) -> None:
+def plot_retained_cCREs_and_barcodes(result_melted_df: pd.DataFrame, output_path: str) -> None:
     plt.clf()
-    fig, _ = plot_lib.retained_cCREs_and_barcodes_plot(result_melted_df)
-    print("Retained_cCREs_and_BCs DONE")
+    fig, _ = plot_lib.retained_ccres_and_barcodes_plot(result_melted_df)
     const.save_fig(fig, "Retained_cCREs_and_BCs", output_path)
+    print("Retained_cCREs_and_BCs DONE")
 
 
-def plot_activity_distribution(act_df: pd.DataFrame, output_path: str)  -> None:
+def plot_activity_distribution(act_df: pd.DataFrame, output_path: str) -> None:
     fig, _ = plot_lib.activity_distribution_plot(act_df)
     const.save_fig(fig, "Activity_distribution", output_path)
     print("Activity_distribution DONE")
@@ -249,8 +218,8 @@ def plot_activity_downsampling(ds_path: str, output_path: str) -> None:
     summary_df = pd.DataFrame(data={"Sampling parameter": downsampling_perc_list, "% Active": act_perc_list})
 
     fig, _ = plot_lib.activity_downsampling_plot(summary_df)
-    print("Activity_by_sequencing_depth DONE")
     const.save_fig(fig, "Activity_by_sequencing_depth", output_path)
+    print("Activity_by_sequencing_depth DONE")
 
 
 def plot_reproducibility_by_sequencing_depth(ds_activity_path, ds_ratio_path, output_path):
@@ -349,15 +318,15 @@ def create_gc_df(act_df: pd.DataFrame, f_file: str) -> pd.DataFrame:
 def plot_gc_content_bias(final_counts_df: pd.DataFrame, output_path: str) -> None:
     plt.clf()
     fig, _ = plot_lib.gc_content_bias_plot(final_counts_df)
-    print("DNA_counts_vs_GC_content DONE")
     const.save_fig(fig, "DNA_counts_vs_GC_content", output_path)
+    print("DNA_counts_vs_GC_content DONE")
 
 
-def plot_ratio_correlation_between_replicates(activity_by_rep, output_path: str) -> None:
+def plot_ratio_correlation_between_replicates(activity_by_rep: pd.DataFrame, output_path: str) -> None:
     plt.clf()
     fig, _ = plot_lib.ratio_correlation_between_replicates_plot(activity_by_rep, False)
     const.save_fig(fig, "Correlation_between_replicates", output_path)
-    
+
     plt.clf()
     fig, _ = plot_lib.ratio_correlation_between_replicates_plot(activity_by_rep, True)
     const.save_fig(fig, "Correlation_between_replicates_w_bar", output_path)
@@ -371,343 +340,97 @@ def plot_Replicability_by_activity(activity_by_rep: pd.DataFrame, act_df: pd.Dat
     print("Replicability_by_activity DONE")
 
 
-def plot_ratio_correlation_with_controls(activity_by_rep, neg, pos, output_path):
-
+def plot_ratio_correlation_with_controls(
+    activity_by_rep: pd.DataFrame, neg: pd.DataFrame, pos: pd.DataFrame, output_path: str
+) -> None:
     plt.clf()
     fig, _ = plot_lib.ratio_correlation_with_controls_plot(activity_by_rep, neg, pos)
-    
+    const.save_fig(fig, "Correlation_between_replicates_controls", output_path)
     print("Correlation between replicates (controls) DONE")
-    const.save_fig(fig, "Correlation between replicates (controls)", output_path)
 
 
-def plot_minimizing_noise_hexbin(noise_df):
+def plot_minimizing_noise_hexbin(noise_df: pd.DataFrame, output_path: str) -> None:
     plt.clf()
-    # Define parameters
-    outlier_filters = ["no_filter", "filtered_std3", "filtered_std2"]
-    dna_thresholds = [0, 10, 25]
-    reps = ["rep1", "rep2", "rep3"]
-
-    # Plot settings
-    gridsize = 100
-    xlim = (-3, 6.5)
-    ylim = (-3, 6.5)
-    extent = [xlim[0], xlim[1], ylim[0], ylim[1]]  # keep binning consistent across axes
-    mincnt = 1  # only draw hexbins that contain points
-
-    # Create subplot grid
-    fig, axes = plt.subplots(len(dna_thresholds), len(outlier_filters), figsize=(10, 8), constrained_layout=True)
-
-    # Store hexbins so we can set a shared normalization + colorbar afterwards
-    hbs = []
-    global_max_count = 0.0
-
-    label_map = {
-        "no_filter": "No outlier removal",
-        "filtered_std3": "Outlier removal >3 SD",
-        "filtered_std2": "Outlier removal >2 SD",
-    }
-
-    for n, outlier_filter in enumerate(outlier_filters):
-        for m, threshold in enumerate(dna_thresholds):
-
-            ax = axes[m, n]
-
-            # Mask by DNA threshold (use np.nan to keep numeric dtype)
-            for rep in reps:
-                noise_df[f"ratio_{outlier_filter}_{rep}_DNA_{threshold}"] = noise_df[
-                    f"ratio_log_{outlier_filter}_{rep}"
-                ].where(noise_df[f"DNA_{outlier_filter}_sum_{rep}"] >= threshold, np.nan)
-
-            # Drop NaNs
-            df_plot = noise_df.dropna(
-                subset=[f"ratio_{outlier_filter}_rep1_DNA_{threshold}", f"ratio_{outlier_filter}_rep2_DNA_{threshold}"]
-            )
-
-            x = df_plot[f"ratio_{outlier_filter}_rep1_DNA_{threshold}"].to_numpy(dtype=float)
-            y = df_plot[f"ratio_{outlier_filter}_rep2_DNA_{threshold}"].to_numpy(dtype=float)
-
-            hb = None
-            if x.size > 0 and y.size > 0:
-                hb = ax.hexbin(
-                    x,
-                    y,
-                    gridsize=gridsize,
-                    extent=extent,
-                    mincnt=mincnt,
-                    cmap=custom_cmap_bolder,
-                    linewidths=0,
-                    edgecolors="none",
-                    # NOTE: we’ll apply a shared LogNorm AFTER we know global max
-                )
-
-                # Track global max count across panels for shared color scaling
-                panel_max = float(np.nanmax(hb.get_array())) if hb.get_array().size else 0.0
-                global_max_count = max(global_max_count, panel_max)
-
-            hbs.append(hb)
-
-            # --- Square aspect ratio and limits ---
-            ax.set_xlim(*xlim)
-            ax.set_ylim(*ylim)
-            ax.set_aspect("equal", adjustable="box")
-
-            # Remove ticks
-            ax.set_xticks([])
-            ax.set_yticks([])
-
-            # Label only outer edges
-            if m == len(dna_thresholds) - 1:
-                ax.set_xlabel(label_map[outlier_filter], fontsize=15)
-            if n == 0:
-                ax.set_ylabel(f"DNA≥{threshold}", fontsize=15)
-
-    # Apply shared log normalization (consistent across all panels)
-    # If there's any data, make a single colorbar for the whole figure.
-    if global_max_count >= 1:
-        norm = LogNorm(vmin=1, vmax=global_max_count)
-
-        # Set norm on all non-empty hexbins
-        for hb in hbs:
-            if hb is not None:
-                hb.set_norm(norm)
-
-        # Create ONE shared colorbar using the first non-empty hexbin as the mappable
-        first_hb = next((hb for hb in hbs if hb is not None), None)
-        if first_hb is not None:
-            cbar = fig.colorbar(first_hb, ax=axes, fraction=0.03, pad=0.02)
-            cbar.set_label("Hexbin count (log scale)")
+    fig, _ = plot_lib.minimizing_noise_hexbin_plot(noise_df)
+    const.save_fig(fig, "Minimizing_noise", output_path)
     print("Minimizing_noise DONE")
-    const.save_fig(plt, "Minimizing_noise", output_path)
 
 
-def plot_RNA_DNA_ratio_hexbin(act_df, output_path):
+def plot_RNA_DNA_ratio_hexbin(act_df: pd.DataFrame, output_path: str) -> None:
     plt.clf()
     fig, _ = plot_lib.rna_dna_ratio_hexbin_plot(act_df, DNA_counts, RNA_counts)
     const.save_fig(fig, "RNA_vs_DNA_w_bar", output_path)
     print("RNA_vs_DNA DONE")
 
 
-def plot_control_boxplots(act_df, neg, pos, test, output_path):
+def plot_control_boxplots(act_df: pd.DataFrame, neg: pd.DataFrame, pos: pd.DataFrame, test: str, output_path: str) -> None:
     plt.clf()
     fig, _ = plot_lib.control_boxplots_plot(act_df, neg, pos, test)
     const.save_fig(fig, "Activity_of_controls", output_path)
     print("Activity_of_controls DONE")
 
 
-screen_ccre_colors = {
-    "Promoter": "#D63B30",  # strong red – promoter‐like signature
-    "Proximal Enhancer": "#D36728",  # dark orange – proximal enhancer‐like signature
-    "Distal Enhancer": "#F8BE35",  # gold/yellow – distal enhancer‐like signature
-    "DNase-H3K4me3": "#8DBCE2",  # (light) blue – (novel promoters/poised enhancers)
-    "DNase-only": "#4383B6",  # grey – DNase only open chromatin
-    "Heterochromatin": "#D3D3D3",  # light grey – low DNase signal / inactive
-}
+def plot_cCRE_annotation_by_activity(annotated_screen_df: pd.DataFrame, output_path: str) -> None:
 
-
-def plot_cCRE_annotation_by_activity(annotated_screen_df):
-
-    annotated_screen_df = annotated_screen_df.copy()
-    annotated_screen_df["mask"] = annotated_screen_df["activity_status"].apply(lambda x: True if x == "active" else False)
-    qbins = pd.qcut(
-        annotated_screen_df.loc[annotated_screen_df["mask"], "activity_statistic"], q=5, labels=[f"Q{i}" for i in range(1, 6)]
-    )
-    annotated_screen_df["bin"] = "Inactive"
-    annotated_screen_df.loc[annotated_screen_df["mask"], "bin"] = qbins
-    counts_df = pd.DataFrame(annotated_screen_df.groupby("bin")["class"].value_counts())
-    counts_df = counts_df.reset_index()
-    counts_df_wide = counts_df.pivot(index="bin", columns=["class"], values="count")
-    counts_df_wide = counts_df_wide.reset_index()
-    counts_df_wide_prop = counts_df_wide.iloc[:, 1:].apply(lambda x: x / x.sum(), axis=1)
-    counts_df_wide_prop["bin"] = counts_df_wide["bin"]
-    bin_order = ["Inactive", "Q1", "Q2", "Q3", "Q4", "Q5"]
-    counts_df_wide_prop["bin"] = pd.Categorical(counts_df_wide_prop["bin"], categories=bin_order, ordered=True)
-    counts_df_wide_prop = counts_df_wide_prop.sort_values("bin")
-    counts_df_wide_prop = counts_df_wide_prop[
-        ["Promoter", "Proximal Enhancer", "Distal Enhancer", "DNase-H3K4me3", "DNase-only", "Heterochromatin", "bin"]
-    ]
-
-    ax = counts_df_wide_prop.plot(x="bin", kind="bar", stacked=True, color=screen_ccre_colors)
-
-    # move legend to the side
-    ax.legend(
-        title="Chromatin mark",
-        loc="center left",  # anchor relative to axes bbox
-        bbox_to_anchor=(1.02, 0.5),  # x>1 pushes it outside to the right
-        frameon=False,
-    )
-    plt.xlabel("Activity quantile")
-    formatter = mtick.PercentFormatter(xmax=1.0)
-    ax.yaxis.set_major_formatter(formatter)
-    ax.set_yticks([0, 1])
-
-    plt.ylabel("cCREs (%)")
+    fig, _ = plot_lib.cCRE_annotation_by_activity_plot(annotated_screen_df)
+    const.save_fig(fig, "Genomic_annotations", output_path)
     print("Genomic_annotations DONE")
-    const.save_fig(plt, "Genomic_annotations", output_path)
 
 
-def plot_distance_to_TSS_by_activity(dist_df):
+def plot_distance_to_TSS_by_activity(dist_df: pd.DataFrame, output_path: str) -> None:
 
-    dist_df["mask"] = dist_df["activity_status"].apply(lambda x: True if x == "active" else False)
-    qbins = pd.qcut(dist_df.loc[dist_df["mask"], "activity_statistic"], q=5, labels=[f"Q{i}" for i in range(1, 6)])
-    dist_df["bin"] = "Inactive"
-    dist_df.loc[dist_df["mask"], "bin"] = qbins
-    bin_order = ["Inactive", "Q1", "Q2", "Q3", "Q4", "Q5"]
-
-    f, ax_box = plt.subplots(figsize=(4, 8))
-    sns.boxplot(
-        data=dist_df,
-        x="bin",
-        y="log10_distance",
-        showfliers=False,
-        color=plot_color_pallete["cCRE"],
-        ax=ax_box,
-        order=bin_order,
-        medianprops={"color": "#FFFFFF", "linewidth": 2},
-    )
-    ax_box.set_ylabel(r"Distance from TSS (bp, $\mathbf{log_{2}}\!$)")
-    ax_box.set_xlabel("Activity quantile")
-    ax_box.tick_params(axis="x", labelrotation=90)
-
-    ax_box.set_yticks([ax_box.get_yticks()[1], ax_box.get_yticks()[-1]])
-
+    plt.clf()
+    fig, _ = plot_lib.distance_to_tss_by_activity_plot(dist_df)
+    const.save_fig(fig, "Proximity_to_TSS", output_path)
     print("Proximity_to_TSS DONE")
-    const.save_fig(plt, "Proximity_to_TSS", output_path)
 
 
-def plot_AI_predictions_vs_activity_hexbin(AI_pred_df):
+def plot_AI_predictions_vs_activity_hexbin(ai_pred_df: pd.DataFrame, output_path: str) -> None:
     plt.clf()
-    y = AI_pred_df["exp: MPRA_activity"].values
-    x = AI_pred_df["AI: predicted_activity"].values
 
-    r = pearsonr(x, y)[0]
-    f, ax_scat = plt.subplots()
-    hb = plt.hexbin(
-        x,
-        y,
-        gridsize=200,
-        cmap=custom_cmap_bolder,
-        mincnt=1,
-        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
-        linewidths=0,
-    )
-    plt.xlabel("AI-predicted activity")
-    plt.ylabel("Experimentally measured activity")
-    plt.text(
-        0.05, 0.95, s=rf"r= {round(r,3)}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
-    )
+    fig, _ = plot_lib.ai_predictions_vs_activity_hexbin_plot(ai_pred_df, colorbar=False)
+    const.save_fig(fig, "AI_predictions_vs_activity", output_path)
     print("AI_predictions_vs_activity DONE")
-    const.save_fig(plt, "AI_predictions_vs_activity", output_path)
-    cbar = plt.colorbar(hb)
-    cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
-
-    const.save_fig(plt, "AI_predictions_vs_activity_w_bar", output_path)
-
-
-def plot_AI_predictions_vs_differential_activity_hexbin(AI_comparative_pred_df):
     plt.clf()
-    y = AI_comparative_pred_df["LFC - exp"].values
-    x = AI_comparative_pred_df["LFC - AI"].values
-    # Create the KDE (Kernel Density Estimate)
-    r = pearsonr(x, y)[0]
-    f, ax_scat = plt.subplots()
-    hb = plt.hexbin(
-        x,
-        y,
-        gridsize=200,
-        cmap=custom_cmap_bolder,
-        mincnt=1,
-        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
-        linewidths=0,
-    )
-    plt.xlabel("AI-predicted differential activity")
-    plt.ylabel("Experimentally measured differential activity")
-    plt.text(
-        0.05, 0.95, s=rf"r= {round(r,3)}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
-    )
+    fig, _ = plot_lib.ai_predictions_vs_activity_hexbin_plot(ai_pred_df, colorbar=True)
+    const.save_fig(fig, "AI_predictions_vs_activity_w_bar", output_path)
+
+
+def plot_AI_predictions_vs_differential_activity_hexbin(ai_comparative_pred_df: pd.DataFrame, output_path: str) -> None:
+    plt.clf()
+    fig, _ = plot_lib.ai_predictions_vs_differential_activity_hexbin_plot(ai_comparative_pred_df, colorbar=False)
+    const.save_fig(fig, "AI_predictions_vs_differential_activity", output_path)
+    plt.clf()
+    fig, _ = plot_lib.ai_predictions_vs_differential_activity_hexbin_plot(ai_comparative_pred_df, colorbar=True)
+    const.save_fig(fig, "AI_predictions_vs_differential_activity_w_bar", output_path)
     print("AI_predictions_vs_differential_activity DONE")
-    const.save_fig(plt, "AI_predictions_vs_differential_activity", output_path)
-    cbar = plt.colorbar(hb)
-    cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
-
-    const.save_fig(plt, "AI_predictions_vs_differential_activity_w_bar", output_path)
 
 
-def plot_differential_activity_distribution(comparative_df):
+def plot_differential_activity_distribution(comparative_df, output_path):
     plt.clf()
-
-    def round_down(num, dec=0):
-        mult = 10**dec
-        return math.floor(num * mult) / mult
-
-    def round_up(num, dec=0):
-        mult = 10**dec
-        return math.ceil(num * mult) / mult
-
-    max_lim = round_up(comparative_df["logFC"].max(), 2)
-    min_lim = round_down(comparative_df["logFC"].min(), 2)
-    bins = np.arange(min_lim, max_lim, 0.05)
-
-    comparative_df["logFC"].hist(color="gray", bins=bins, label="Active", grid=False)
-    comparative_df.loc[comparative_df["differentialy_active"] == True, "logFC"].hist(
-        color="red", bins=bins, label="Differentially active", grid=False
-    )
-    plt.xlabel("Fold Change, log2")
-    plt.ylabel("#cCREs")
-    # plt.title("Modern Human-derived MethMPRA results in osteoblasts")
-    plt.legend(loc="best")
+    fig, _ = plot_lib.differential_activity_distribution_plot(comparative_df)
+    const.save_fig(fig, "Differential_activity_distribution", output_path)
     print("Differential_activity_distribution DONE")
-    const.save_fig(plt, "Differential_activity_distribution", output_path)
 
 
-def plot_differential_activity_volcano(comparative_df):
-    p_thresh = 0.05
-    lfc_thresh = 0
-    plt.figure()
-    comparative_df["neglog10p"] = -np.log10(comparative_df["differential_activity_FDR"])
-    # classify points
-    sig = (comparative_df["differential_activity_FDR"] < p_thresh) & (np.abs(comparative_df["logFC"]) >= lfc_thresh)
-    up = sig & (comparative_df["logFC"] >= lfc_thresh)
-    down = sig & (comparative_df["logFC"] <= -lfc_thresh)
-    ns = ~sig
-    # scatter (two colors for up/down + grey for NS)
-    plt.scatter(
-        comparative_df.loc[ns, "logFC"],
-        comparative_df.loc[ns, "neglog10p"],
-        color="lightgray",
-        s=12,
-        alpha=0.5,
-        label="Active",
-    )
-    plt.scatter(
-        comparative_df.loc[up, "logFC"], comparative_df.loc[up, "neglog10p"], color="gold", s=12, alpha=0.8, label="Up"
-    )
-    plt.scatter(
-        comparative_df.loc[down, "logFC"],
-        comparative_df.loc[down, "neglog10p"],
-        color="slateblue",
-        s=12,
-        alpha=0.8,
-        label="Down",
-    )
-    plt.axhline(-np.log10(p_thresh), linestyle="--", linewidth=1)
-    plt.xlabel("logFC")
-    plt.ylabel(f"-log10(FDR)")
-    plt.xlim(np.floor(comparative_df["logFC"].min()), np.ceil(comparative_df["logFC"].max()))
-    plt.legend(loc="upper right", frameon=False)
+def plot_differential_activity_volcano(comparative_df, output_path):
+    plt.clf()
+    fig, _ = plot_lib.differential_activity_volcano_plot(comparative_df, zoom=False)
+    const.save_fig(fig, "Volcano_plot_FC_vs_Pval", output_path)
+    plt.clf()
+    fig, _ = plot_lib.differential_activity_volcano_plot(comparative_df, zoom=True)
+    const.save_fig(fig, "Volcano_plot_FC_vs_Pval_zoom", output_path)
     print("Volcano_plot_FC_vs_Pval DONE")
-    const.save_fig(plt, "Volcano_plot_FC_vs_Pval", output_path)
-    plt.ylim(-1, 10)
-    const.save_fig(plt, "Volcano_plot_FC_vs_Pval_zoom", output_path)
 
 
 def plot_activity_statistic_vs_count_ratio(act_df, output_path):
     plt.clf()
     fig, _ = plot_lib.activity_statistic_vs_count_ratio_plot(act_df, min_DNA_reads)
-    print("Activity_statistic_vs_count_ratio DONE")
     const.save_fig(fig, "Activity_statistic_vs_count_ratio", output_path)
+    print("Activity_statistic_vs_count_ratio DONE")
 
 
-def downsampling_preprocessing(ds_ratio_path: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def downsampling_preprocessing(ds_ratio_path: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     downsampling_perc_list = np.arange(0.1, 1.01, 0.1)
     results_list = []
     for p in downsampling_perc_list:
@@ -787,267 +510,60 @@ def downsampling_preprocessing(ds_ratio_path: str) -> Tuple[pd.DataFrame, pd.Dat
 def plot_BC_retention_by_DNA_RNA_sequencing_depth(reps_sampling_df_bc: pd.DataFrame, output_path: str) -> None:
     plt.clf()
     fig, _ = plot_lib.bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc)
-    print("BC_retention_by_DNA_RNA_sequencing_depth DONE")
     const.save_fig(fig, "BC_retention_by_DNA_RNA_sequencing_depth", output_path)
+    print("BC_retention_by_DNA_RNA_sequencing_depth DONE")
 
 
 def plot_cCRE_retention_by_DNA_RNA_sequencing_depth(reps_sampling_df_ccre: pd.DataFrame, output_path: str) -> None:
     plt.clf()
     fig, _ = plot_lib.ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre)
-    print("cCRE_retention_by_DNA_RNA_sequencing_depth DONE")
     const.save_fig(fig, "cCRE_retention_by_DNA_RNA_sequencing_depth", output_path)
+    print("cCRE_retention_by_DNA_RNA_sequencing_depth DONE")
 
 
-def plot_allelic_pairs_hexbin(pair_df):
-    x = pair_df["allele1"].values
-    y = pair_df["allele2"].values
+def plot_allelic_pairs_hexbin(pair_df: pd.DataFrame, output_path: str):
+
     plt.clf()
-    fig, ax = plt.subplots()
+    fig, _ = plot_lib.allelic_pairs_hexbin_plot(pair_df, colorbar=False)
+    const.save_fig(fig, "Cross_validation_allelic_pairs", output_path)
 
-    hb = ax.hexbin(
-        x,
-        y,
-        gridsize=200,
-        cmap=custom_cmap_bolder,
-        mincnt=1,
-        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
-        linewidths=0,
-    )
-
-    plt.xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allele 1")
-    plt.ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allele 2")
-
-    r = pearsonr(x, y)[0]
-    plt.text(0.05, 0.95, s=rf"r= {round(r,3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
-
-    plt.xticks([np.round(x.min()), np.round(x.max())])
-    plt.yticks([np.round(y.min()), np.round(y.max())])
+    plt.clf()
+    fig, _ = plot_lib.allelic_pairs_hexbin_plot(pair_df, colorbar=True)
+    const.save_fig(fig, "Cross_validation_allelic_pairs_w_bar", output_path)
     print("Cross_validation_allelic_pairs DONE")
-    const.save_fig(plt, "Cross_validation_allelic_pairs", output_path)
-
-    cbar = plt.colorbar(hb)
-    cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
-
-    const.save_fig(plt, "Cross_validation_allelic_pairs_w_bar", output_path)
 
 
-def plot_cell_types_hexbin(cell_type_df):
+def plot_cell_types_hexbin(cell_type_df: pd.DataFrame, output_path: str) -> None:
+
     plt.clf()
-    x = cell_type_df["RNA_DNA_ratio_log_cell1"]
-    y = cell_type_df["RNA_DNA_ratio_log_cell2"]
+    fig, _ = plot_lib.cell_types_hexbin_plot(cell_type_df, colorbar=False)
+    const.save_fig(fig, "Cross_validaiton_cell_types", output_path)
 
-    hb = plt.hexbin(
-        x,
-        y,
-        gridsize=125,
-        cmap=custom_cmap_bolder,
-        mincnt=1,
-        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
-        linewidths=0,
-    )
+    plt.clf()
+    fig, _ = plot_lib.cell_types_hexbin_plot(cell_type_df, colorbar=True)
+    const.save_fig(fig, "Cross_validaiton_cell_types_w_bar", output_path)
 
-    # cbar = plt.colorbar(hb)
-    # cbar.set_label('log10(count) per hexbin')  # or 'log10(count)' if using LogNorm
-
-    plt.xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ Cell type 1")
-    plt.ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ Cell type 2")
-    ax = plt.gca()
-    r, p = pearsonr(x, y)
-    plt.text(0.90, 0.05, s=rf"r= {round(r,3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
-    plt.xticks([np.round(x.min()), np.round(x.max())])
-    plt.yticks([np.round(y.min()), np.round(y.max())])
     print("Cross_validaiton_cell_types DONE")
-    const.save_fig(plt, "Cross_validaiton_cell_types", output_path)
-
-    cbar = plt.colorbar(hb)
-    cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
-
-    const.save_fig(plt, "Cross_validaiton_cell_types_w_bar", output_path)
 
 
-def plot_diff_activity_corr_reps_hexbin(pair_rep_df):
+def plot_diff_activity_corr_reps_hexbin(pair_rep_df: pd.DataFrame, output_path: str) -> None:
+
     plt.clf()
-    x = pair_rep_df["LFC_rep1"].values
-    y = pair_rep_df["LFC_rep2"].values
+    fig, _ = plot_lib.diff_activity_corr_reps_hexbin_plot(pair_rep_df, colorbar=False)
+    const.save_fig(fig, "Correlation_of_differential_activity_between_replicates_w_bar", output_path)
+
     plt.clf()
-    fig, ax = plt.subplots()
+    fig, _ = plot_lib.diff_activity_corr_reps_hexbin_plot(pair_rep_df, colorbar=True)
+    const.save_fig(fig, "Correlation_of_differential_activity_between_replicates", output_path)
 
-    hb = ax.hexbin(
-        x,
-        y,
-        gridsize=200,
-        cmap=custom_cmap_bolder,
-        mincnt=1,
-        norm=LogNorm(vmin=1, vmax=1000),  # cap at 100 counts, log-scaled
-        linewidths=0,
-    )
-
-    plt.xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allelic difference")
-    plt.ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allelic difference")
-    r = pearsonr(x, y)[0]
-    plt.text(0.05, 0.95, s=rf"r= {round(r,3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
-
-    plt.xticks([np.floor(x.min()), np.ceil(x.max())])
-    plt.yticks([np.floor(y.min()), np.ceil(y.max())])
     print("Correlation_of_differential_activity_between_replicates DONE")
-    const.save_fig(plt, "Correlation_of_differential_activity_between_replicates", output_path)
-
-    cbar = plt.colorbar(hb)
-    cbar.set_label("Number of observations per hexagon")  # or 'log10(count)' if using LogNorm
-
-    const.save_fig(plt, "Correlation_of_differential_activity_between_replicates", output_path)
 
 
-def plot_sample_clustering(reads_df, metadata_df):
-    pca_input = reads_df.copy()
-    groups = metadata_df["Group"].values
-
-    # Transpose for PCA (samples = columns in R)
-    X = pca_input.T.values
-    X_scaled = StandardScaler().fit_transform(X)
-
-    pca = PCA()
-    pcs = pca.fit_transform(X_scaled)
-
-    # Variance explained
-    var_explained = pca.explained_variance_ratio_ * 100  # %
-
-    # Build dataframe for plotting
-    pca_df = pd.DataFrame(pcs, columns=[f"PC{i+1}" for i in range(pcs.shape[1])])
-    pca_df["group"] = groups
-
-    # Plot PC1 vs PC2
-    plt.figure(figsize=(6, 5))
-    ax = sns.scatterplot(data=pca_df, x="PC1", y="PC2", hue="group", style="group", s=80)
-
-    # Rename legend labels
-    new_labels = metadata_df["Group"].unique()
-    handles, new_labels = ax.get_legend_handles_labels()
-    ax.legend(handles=handles[0:], labels=new_labels, title="Cell type")
-
-    # Axis labels with variance explained
-    ax.set_xlabel(f"PC1 ({var_explained[0]:.1f}%)")
-    ax.set_ylabel(f"PC2 ({var_explained[1]:.1f}%)")
-
-    # Remove tick labels for cleaner look
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    plt.tight_layout()
+def plot_sample_clustering(reads_df: pd.DataFrame, metadata_df: pd.DataFrame, output_path: str) -> None:
+    plt.clf()
+    fig, _ = plot_lib.sample_clustering_plot(reads_df, metadata_df)
+    const.save_fig(fig, "Sample_clustering", output_path)
     print("Sample_clustering DONE")
-    const.save_fig(plt, "Sample_clustering", output_path)
-
-
-if __name__ == "__main__":
-    # load data
-    print("Loading data...")
-    if "activity_df" in library_paths:
-        print("loading activity_df...")
-        activity_df = pd.read_csv(library_paths["activity_df"])
-
-    if "activity_per_rep" in library_paths:
-        print("loading activity_per_rep...")
-        activity_by_rep_df = pd.read_csv(library_paths["activity_per_rep"])
-
-    if "reads_by_group" in library_paths:
-        print("loading reads_by_group...")
-        reads_by_group_df = pd.read_csv(library_paths["reads_by_group"])
-
-    if "samples_metadata" in library_paths:
-        print("loading samples_metadata...")
-        samples_metadata_df = pd.read_csv(library_paths["samples_metadata"])
-
-    if "cCRE_fasta" in library_paths:
-        print("loading cCRE_fasta...")
-        fasta_file = library_paths["cCRE_fasta"]
-
-    if "different_std_threshold_analysis" in library_paths:
-        print("loading different_std_threshold_analysis...")
-        std_analysis_df = pd.read_csv(library_paths["different_std_threshold_analysis"])
-
-    if "screen_df" in library_paths:
-        print("loading screen_df...")
-        screen_df = pd.read_csv(library_paths["screen_df"])
-
-    if "tss_df" in library_paths:
-        print("loading tss_df...")
-        distance_df = pd.read_csv(library_paths["tss_df"])
-
-    if "AI_df" in library_paths:
-        print("loading AI_df...")
-        AI_df = pd.read_csv(library_paths["AI_df"])
-
-    if "AI_comparative_df" in library_paths:
-        print("loading AI_comparative_df...")
-        AI_comparative_df = pd.read_csv(library_paths["AI_comparative_df"])
-
-    if "downsampling_activity_path" in library_paths:
-        print("Activity downsampling data available")
-        downsampling_activity_path = library_paths["downsampling_activity_path"]
-
-    if "downsampling_ratio_path" in library_paths:
-        print("Ratio downsampling data available")
-        downsampling_ratio_path = library_paths["downsampling_ratio_path"]
-
-    if "comparative_df" in library_paths:
-        print("loading comparative_df...")
-        comparative_activity_df = pd.read_csv(library_paths["comparative_df"])
-
-    if "allelic_pairs_df" in library_paths:
-        print("loading allelic_pairs_df...")
-        allelic_pairs_df = pd.read_csv(library_paths["allelic_pairs_df"])
-
-    if "cell_types_df" in library_paths:
-        print("loading cell_types_df...")
-        cell_types_df = pd.read_csv(library_paths["cell_types_df"])
-
-    if "allelic_pairs_replicates_df" in library_paths:
-        print("loading allelic_pairs_replicates_df...")
-        pair_reps_df = pd.read_csv(library_paths["allelic_pairs_replicates_df"])
-
-    if "control_df" in library_paths:
-        print("loading control_df...")
-        control_df = pd.read_csv(library_paths["control_df"])
-        group_dict = control_df.groupby("cCRE_type")["cCRE"].apply(list).to_dict()
-        pos_olg = group_dict["positive_ctrl"]
-        neg_olg = group_dict["negative_ctrl"]
-        test_olg = group_dict["test_cCRE"]
-
-    print("Creating plots...")
-
-    if "different_std_threshold_analysis" in library_paths:
-        plot_minimizing_noise_hexbin(std_analysis_df)
-
-    if "screen_df" in library_paths:
-        plot_cCRE_annotation_by_activity(screen_df)
-
-    if "tss_df" in library_paths:
-        plot_distance_to_TSS_by_activity(distance_df)
-
-    if "AI_df" in library_paths:
-        plot_AI_predictions_vs_activity_hexbin(AI_df)
-
-    if "AI_comparative_df" in library_paths:
-        plot_AI_predictions_vs_differential_activity_hexbin(AI_comparative_df)
-
-    if "comparative_df" in library_paths:
-        plot_differential_activity_volcano(comparative_activity_df)
-        plot_differential_activity_distribution(comparative_activity_df)
-
-    if "allelic_pairs_df" in library_paths:
-        plot_allelic_pairs_hexbin(allelic_pairs_df)
-
-    if "cell_types_df" in library_paths:
-        plot_cell_types_hexbin(cell_types_df)
-
-    if "allelic_pairs_replicates_df" in library_paths:
-        plot_diff_activity_corr_reps_hexbin(pair_reps_df)
-
-
-    if "reads_by_group" in library_paths and "samples_metadata" in library_paths:
-        plot_sample_clustering(reads_by_group_df, samples_metadata_df)
-
-    print("Done!")
 
 
 @click.group(help="MPRA QC Activity plots.")
@@ -1101,13 +617,6 @@ def main(activity_file: str, output_path: str) -> None:
     required=True,
     type=click.Path(exists=True, readable=True),
     help="MPRA Controls file in CSV format.",
-)
-@click.option(
-    "--activity-per-rep",
-    "activity_per_rep_file",
-    required=True,
-    type=click.Path(exists=True, readable=True),
-    help="MPRA Activity per replicate file in CSV format.",
 )
 @click.option(
     "--output-path",
@@ -1231,8 +740,6 @@ def ratio_correlation_between_replicates(activity_per_rep_file: str, output_path
     plot_ratio_correlation_between_replicates(activity_by_rep_df, output_path)
 
 
-
-
 @activity.command(help="TODO.")
 @click.option(
     "--controls",
@@ -1296,7 +803,6 @@ def downsampling(downsampling_activity_path: str, output_path: str) -> None:
 
 
 @activity.command(help="TODO.")
-
 @click.option(
     "--downsampling-ratio-path",
     "downsampling_ratio_path",
@@ -1326,3 +832,284 @@ def reproducibility_by_sequencing_depth(downsampling_ratio_path: str, output_pat
     except FileNotFoundError as e:
         click.echo(f"Error: {e}", err=True)
         raise
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--sdt-thresholds",
+    "sdt_thresholds_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the different SDT thresholds analysis data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def mimimise_noise(sdt_thresholds_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        sdt_thresholds_path (str): Path to the different SDT thresholds analysis data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    std_analysis_df = pd.read_csv(sdt_thresholds_path)
+    plot_minimizing_noise_hexbin(std_analysis_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--screen",
+    "screen_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the screen data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def screen_annotations(screen_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        screen_path (str): Path to the screen data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+
+    screen_df = pd.read_csv(screen_path)
+    plot_cCRE_annotation_by_activity(screen_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--tss-distance",
+    "tss_distance_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the TSS data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def tss_proximity(tss_distance_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        tss_distance_path (str): Path to the TSS data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    distance_df = pd.read_csv(tss_distance_path)
+    plot_distance_to_TSS_by_activity(distance_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--activity-prediction",
+    "activity_prediction_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the activity prediction data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def prediction_vs_activity(activity_prediction_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        activity_prediction_path (str): Path to the activity prediction data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    ai_df = pd.read_csv(activity_prediction_path)
+    plot_AI_predictions_vs_activity_hexbin(ai_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--differential-activity-prediction",
+    "differential_activity_prediction_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the differential activity prediction data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def prediction_vs_differential_activity(differential_activity_prediction_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        differential_activity_prediction_path (str): Path to the differential activity prediction data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    ai_comparative_df = pd.read_csv(differential_activity_prediction_path)
+    plot_AI_predictions_vs_differential_activity_hexbin(ai_comparative_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--differential-activity",
+    "differential_activity_path",
+    required=True,
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True),
+    help="Path to the differential activity data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def comparative(differential_activity_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        differential_activity_path (str): Path to the differential activity data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    comparative_activity_df = pd.read_csv(differential_activity_path)
+    plot_differential_activity_volcano(comparative_activity_df, output_path)
+    plot_differential_activity_distribution(comparative_activity_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--allelic-pairs",
+    "allelic_pairs_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the allelic pairs data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def allelic_pairs(allelic_pairs_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        allelic_pairs_path (str): Path to the allelic pairs data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    allelic_pairs_df = pd.read_csv(allelic_pairs_path)
+    plot_allelic_pairs_hexbin(allelic_pairs_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--cell-types",
+    "cell_types_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the cell types data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def cell_types(cell_types_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        cell_types_path (str): Path to the cell types data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    cell_types_df = pd.read_csv(cell_types_path)
+    plot_cell_types_hexbin(cell_types_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--differential-activity-replicates",
+    "differential_activity_replicates_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the differential activity replicates data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def comparative_replicates(differential_activity_replicates_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        differential_activity_replicates_path (str): Path to the differential activity replicates data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    pair_reps_df = pd.read_csv(differential_activity_replicates_path)
+    plot_diff_activity_corr_reps_hexbin(pair_reps_df, output_path)
+
+
+@activity.command(help="TODO.")
+@click.option(
+    "--reads-by-group",
+    "reads_by_group_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the reads by group data.",
+)
+@click.option(
+    "--sample-metadata",
+    "sample_metadata_path",
+    required=True,
+    type=click.Path(exists=True, readable=True),
+    help="Path to the sample metadata data.",
+)
+@click.option(
+    "--output-path",
+    "output_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=True, writable=True),
+    help="Path to the output directory for MPRA QC analysis results.",
+)
+def sample_clusters(reads_by_group_path: str, sample_metadata_path: str, output_path: str) -> None:
+    """
+    TODO
+
+    Args:
+        reads_by_group_path (str): Path to the reads by group data.
+        sample_metadata_path (str): Path to the sample metadata data.
+        output_path (str): Path to the output directory for MPRA QC analysis results.
+    """
+    reads_by_group_df = pd.read_csv(reads_by_group_path)
+    samples_metadata_df = pd.read_csv(sample_metadata_path)
+    plot_sample_clustering(reads_by_group_df, samples_metadata_df, output_path)

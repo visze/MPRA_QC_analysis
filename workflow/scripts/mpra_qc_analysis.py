@@ -1,9 +1,9 @@
-from .association_analysis import association
-from .activity_analysis import activity
 import click
+from activity_analysis import activity
+from association_analysis import association
 
 
-@click.group(help="Command line interface of MPRA QC analysis.")
+@click.group(help="Command Line interface of MPRA QC analysis.")
 def main() -> None:
     pass
 

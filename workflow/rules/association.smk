@@ -9,10 +9,11 @@ rule association_final:
             cols=["path"],
         ),
         script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
         plot_lib=getScript("plot_lib.py"),
-        const=getScript("const.py"),
+        const_lib=getScript("const.py"),
     output:
-        touch("results/{project}/association.done"),
         expand(
             "results/{{project}}/association/{plot}.{file_type}",
             plot=get_association_final_plots(association_files),
@@ -35,9 +36,14 @@ rule association_before_minimum_observations:
             query="file == 'associations_before_minimum_observations'",
             cols=["path"],
         ),
+        design=lookup(
+            within=association_files, query="file == 'cCRE_fasta'", cols=["path"]
+        ),
         script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
         plot_lib=getScript("plot_lib.py"),
-        const=getScript("const.py"),
+        const_lib=getScript("const.py"),
     output:
         expand(
             "results/{{project}}/association/{plot}.{file_type}",
@@ -48,9 +54,10 @@ rule association_before_minimum_observations:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/association/"),
+        design=lambda wc, input: f"--design {input.design[0]}" if input.design else "",
     shell:
         """
-         python {input.script}  association before_minimum_observations --associations {input.associations} --output-path {params.outdir}
+         python {input.script} association before-minimum-observations --associations {input.associations} {params.design} --output-path {params.outdir}
         """
 
 
@@ -61,9 +68,14 @@ rule association_before_promiscuity:
             query="file == 'associations_before_promiscuity'",
             cols=["path"],
         ),
+        design=lookup(
+            within=association_files, query="file == 'cCRE_fasta'", cols=["path"]
+        ),
         script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
         plot_lib=getScript("plot_lib.py"),
-        const=getScript("const.py"),
+        const_lib=getScript("const.py"),
     output:
         expand(
             "results/{{project}}/association/{plot}.{file_type}",
@@ -74,9 +86,10 @@ rule association_before_promiscuity:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/association/"),
+        design=lambda wc, input: f"--design {input.design[0]}" if input.design else "",
     shell:
         """
-         python {input.script}  association before_promiscuity --associations {input.associations} --output-path {params.outdir}
+         python {input.script}  association before-promiscuity --associations {input.associations} {params.design} --output-path {params.outdir}
         """
 
 
@@ -91,8 +104,10 @@ rule association_downsampling:
             cols=["path"],
         ),
         script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
         plot_lib=getScript("plot_lib.py"),
-        const=getScript("const.py"),
+        const_lib=getScript("const.py"),
     output:
         expand(
             "results/{{project}}/association/{plot}.{file_type}",

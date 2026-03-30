@@ -5,12 +5,13 @@ import plot_lib
 
 const.set_plot_style()
 
-import pandas as pd
 import os
+
+import click
 import numpy as np
+import pandas as pd
 import pysam
 import regex as re
-import click
 
 ### Define functions
 
@@ -202,13 +203,20 @@ def final(design_file: str, associations_file: str, output_path: str) -> None:  
     help="MPRA Associations file in CSV format before minimum observation filtering.",
 )
 @click.option(
+    "--design",
+    "design_file",
+    required=False,
+    type=click.Path(exists=True, readable=True),
+    help="MPRA Design file (e.g. cCREs) in FASTA format. FASTA headers must match with the cCRE column in the associations file.",
+)
+@click.option(
     "--output-path",
     "output_path",
     required=True,
     type=click.Path(exists=True, dir_okay=True, writable=True),
     help="Path to the output directory for MPRA QC analysis results.",
 )
-def before_minimum_observations(associations_file: str, output_path: str) -> None:
+def before_minimum_observations(associations_file: str, design_file: str | None, output_path: str) -> None:
     """
     Associations QC plots before minimum observation filtering.
 
@@ -216,6 +224,9 @@ def before_minimum_observations(associations_file: str, output_path: str) -> Non
         associations_file (str): Path to the MPRA Associations file in CSV format before minimum observation filtering.
     """
     associations_before_minimum_observations = pd.read_csv(associations_file)
+    if design_file:
+        _, oligo_list, _ = feature_dict_creator(design_file)
+        associations_before_minimum_observations = associations_before_minimum_observations.loc[associations_before_minimum_observations['cCRE'].isin(oligo_list)]
     Reads_per_association_plot(associations_before_minimum_observations, output_path)
 
 
@@ -228,20 +239,31 @@ def before_minimum_observations(associations_file: str, output_path: str) -> Non
     help="MPRA Associations file in CSV format before minimum observation filtering.",
 )
 @click.option(
+    "--design",
+    "design_file",
+    required=False,
+    type=click.Path(exists=True, readable=True),
+    help="MPRA Design file (e.g. cCREs) in FASTA format. FASTA headers must match with the cCRE column in the associations file.",
+)
+@click.option(
     "--output-path",
     "output_path",
     required=True,
     type=click.Path(exists=True, dir_okay=True, writable=True),
     help="Path to the output directory for MPRA QC analysis results.",
 )
-def before_promiscuity(associations_file: str, output_path: str) -> None:
+def before_promiscuity(associations_file: str, design_file: str | None, output_path: str) -> None:
     """
     Associations QC plots before promiscuity filtering.
 
     Args:
         associations_file (str): Path to the MPRA Associations file in CSV format before promiscuity filtering.
+        design_file (str | None): Path to the MPRA Design file in FASTA format. FASTA headers must match with the cCRE column in the associations file.
     """
     associations_before_promiscuity = pd.read_csv(associations_file)
+    if design_file:
+        _, oligo_list, _ = feature_dict_creator(design_file)
+        associations_before_promiscuity=associations_before_promiscuity.loc[associations_before_promiscuity['cCRE'].isin(oligo_list)]
     prom_counts_df = barcode_df_counts_creator(associations_before_promiscuity)
     cCREs_per_BC_plot(prom_counts_df, output_path)
 

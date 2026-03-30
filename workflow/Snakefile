@@ -21,12 +21,13 @@ containerized: f"docker://visze/mpra_qc_analysis:{__version__.base_version}"
 #################
 import pandas as pd
 
+##### check snakemake min version #####
+from snakemake.utils import min_version
+
 ##################
 #### SETTINGS ####
 ##################
 
-##### check snakemake min version #####
-from snakemake.utils import min_version
 
 min_version("8.24.1")
 
@@ -73,7 +74,23 @@ General all rule to get all output files for MPRA QC analysis (default rule).
             file_type=["pdf", "eps", "png", "svg"],
             project=config["project"],
         ),
-        f"results/{config['project']}/activity.done" if "activity" in config else [],
+        expand(
+            "results/{project}/activity/{plot}.{file_type}",
+            plot=get_activity_main_plots(activity_files)
+            + get_activity_control_boxplots_plots(activity_files)
+            + get_activity_replicability_by_activity_plots(activity_files)
+            + get_activity_gc_content_bias_plots(activity_files)
+            + get_activity_ratio_correlation_between_replicates_plots(activity_files)
+            + get_activity_ratio_correlation_with_controls_plots(activity_files)
+            + get_activity_downsampling_plots(activity_files)
+            + get_activity_reproducibility_by_sequencing_depth_plots(activity_files)
+            + get_activity_mimimise_noise_plots(activity_files)
+            + get_activity_screen_annotations_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+            project=config["project"],
+        )
+        if "activity" in config
+        else [],
 
 
 rule all_association:
@@ -97,7 +114,23 @@ rule all_activity:
 All rule to get all output files for the activity workflow.
 """
     input:
-        f"results/{config['project']}/activity.done" if "activity" in config else [],
+        expand(
+            "results/{project}/activity/{plot}.{file_type}",
+            plot=get_activity_main_plots(activity_files)
+            + get_activity_control_boxplots_plots(activity_files)
+            + get_activity_replicability_by_activity_plots(activity_files)
+            + get_activity_gc_content_bias_plots(activity_files)
+            + get_activity_ratio_correlation_between_replicates_plots(activity_files)
+            + get_activity_ratio_correlation_with_controls_plots(activity_files)
+            + get_activity_downsampling_plots(activity_files)
+            + get_activity_reproducibility_by_sequencing_depth_plots(activity_files)
+            + get_activity_mimimise_noise_plots(activity_files)
+            + get_activity_screen_annotations_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+            project=config["project"],
+        )
+        if "activity" in config
+        else [],
 
 
 ###################

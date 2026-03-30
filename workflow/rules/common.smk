@@ -2,7 +2,7 @@
 #### Global functions       ####
 ################################
 
-SCRIPTS_DIR = "../../scripts"
+SCRIPTS_DIR = "../scripts"
 ENVS_DIR = "../envs"
 
 
@@ -40,8 +40,8 @@ else:
     validate(config, schema="../schemas/config.schema.yml")
 
 # load sample sheets
-association_files = pd.DataFrame()
-activity_files = pd.DataFrame()
+association_files = pd.DataFrame(columns=["file", "path"])
+activity_files = pd.DataFrame(columns=["file", "path"])
 if "association" in config:
     association_files = pd.read_csv(config["association"], delimiter="\t")
     validate(association_files, schema="../schemas/association_file.schema.yml")
@@ -109,3 +109,131 @@ def get_association_downsampling_plots(association_df: pd.DataFrame) -> list:
         if "associations_downsampling_path" in association_df["file"].values:
             return ["Downsampling_Retained_cCREs", "Downsampling_Barcodes_per_cCRE"]
     return []
+
+
+def get_activity_main_plots(activity_df: pd.DataFrame) -> list:
+
+    if activity_df.empty:
+        return []
+    else:
+        if "activity_df" in activity_df["file"].values:
+            return [
+                "Activity_distribution",
+                "P_value_distribution",
+                "Cumulative_RNA_reads",
+                "RNA_vs_DNA_w_bar",
+                "Activity_statistic_vs_count_ratio",
+            ]
+    return []
+
+
+def get_activity_control_boxplots_plots(activity_df: pd.DataFrame) -> list:
+
+    if activity_df.empty:
+        return []
+    else:
+        if (
+            "activity_df" in activity_df["file"].values
+            and "control_df" in activity_df["file"].values
+        ):
+            return ["Activity_of_controls"]
+    return []
+
+
+def get_activity_replicability_by_activity_plots(activity_df: pd.DataFrame) -> list:
+
+    if (
+        not activity_df.empty
+        and "activity_per_rep" in activity_df["file"].values
+        and "activity_df" in activity_df["file"].values
+    ):
+        return ["Replicability_by_activity"]
+    else:
+        return []
+
+
+def get_activity_gc_content_bias_plots(activity_df: pd.DataFrame) -> list:
+    if (
+        not activity_df.empty
+        and "activity_df" in activity_df["file"].values
+        and "cCRE_fasta" in activity_df["file"].values
+    ):
+        return ["DNA_counts_vs_GC_content"]
+    else:
+        return []
+
+
+def get_activity_ratio_correlation_between_replicates_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "activity_per_rep" in activity_df["file"].values:
+        return [
+            "Retained_cCREs_and_BCs",
+            "Correlation_between_replicates",
+            "Correlation_between_replicates_w_bar",
+        ]
+    else:
+        return []
+
+
+def get_activity_ratio_correlation_with_controls_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if (
+        not activity_df.empty
+        and "activity_per_rep" in activity_df["file"].values
+        and "control_df" in activity_df["file"].values
+    ):
+        return ["Correlation_between_replicates_controls"]
+    else:
+        return []
+
+
+def get_activity_downsampling_plots(activity_df: pd.DataFrame) -> list:
+    if (
+        not activity_df.empty
+        and "downsampling_activity_path" in activity_df["file"].values
+    ):
+        return ["Activity_by_sequencing_depth"]
+    else:
+        return []
+
+
+def get_activity_reproducibility_by_sequencing_depth_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if (
+        not activity_df.empty
+        and "downsampling_activity_path" in activity_df["file"].values
+    ):
+        return [
+            "BC_retention_by_DNA_RNA_sequencing_depth",
+            "cCRE_retention_by_DNA_RNA_sequencing_depth",
+        ]
+    else:
+        return []
+
+
+def get_activity_mimimise_noise_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if (
+        not activity_df.empty
+        and "different_std_threshold_analysis" in activity_df["file"].values
+    ):
+        return [
+            "Minimizing_noise",
+        ]
+    else:
+        return []
+
+
+def get_activity_screen_annotations_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "screen_df" in activity_df["file"].values:
+        return [
+            "Genomic_annotations",
+        ]
+    else:
+        return []
