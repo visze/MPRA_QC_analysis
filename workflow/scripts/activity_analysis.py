@@ -537,23 +537,23 @@ def plot_cell_types_hexbin(cell_type_df: pd.DataFrame, output_path: str) -> None
 
     plt.clf()
     fig, _ = plot_lib.cell_types_hexbin_plot(cell_type_df, colorbar=False)
-    const.save_fig(fig, "Cross_validaiton_cell_types", output_path)
+    const.save_fig(fig, "Cross_validation_cell_types", output_path)
 
     plt.clf()
     fig, _ = plot_lib.cell_types_hexbin_plot(cell_type_df, colorbar=True)
-    const.save_fig(fig, "Cross_validaiton_cell_types_w_bar", output_path)
+    const.save_fig(fig, "Cross_validation_cell_types_w_bar", output_path)
 
-    print("Cross_validaiton_cell_types DONE")
+    print("Cross_validation_cell_types DONE")
 
 
 def plot_diff_activity_corr_reps_hexbin(pair_rep_df: pd.DataFrame, output_path: str) -> None:
 
     plt.clf()
-    fig, _ = plot_lib.diff_activity_corr_reps_hexbin_plot(pair_rep_df, colorbar=False)
+    fig, _ = plot_lib.diff_activity_corr_reps_hexbin_plot(pair_rep_df, colorbar=True)
     const.save_fig(fig, "Correlation_of_differential_activity_between_replicates_w_bar", output_path)
 
     plt.clf()
-    fig, _ = plot_lib.diff_activity_corr_reps_hexbin_plot(pair_rep_df, colorbar=True)
+    fig, _ = plot_lib.diff_activity_corr_reps_hexbin_plot(pair_rep_df, colorbar=False)
     const.save_fig(fig, "Correlation_of_differential_activity_between_replicates", output_path)
 
     print("Correlation_of_differential_activity_between_replicates DONE")

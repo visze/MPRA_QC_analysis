@@ -237,3 +237,105 @@ def get_activity_screen_annotations_plots(
         ]
     else:
         return []
+
+
+def get_activity_tss_proximity_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "tss_df" in activity_df["file"].values:
+        return [
+            "Proximity_to_TSS",
+        ]
+    else:
+        return []
+
+
+def get_activity_prediction_vs_activity_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "AI_df" in activity_df["file"].values:
+        return [
+            "AI_predictions_vs_activity",
+            "AI_predictions_vs_activity_w_bar",
+        ]
+    else:
+        return []
+
+
+def get_activity_prediction_vs_differential_activity_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "AI_comparative_df" in activity_df["file"].values:
+        return [
+            "AI_predictions_vs_differential_activity",
+            "AI_predictions_vs_differential_activity_w_bar",
+        ]
+    else:
+        return []
+
+
+def get_activity_comparative_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "comparative_df" in activity_df["file"].values:
+        return [
+            "Volcano_plot_FC_vs_Pval",
+            "Volcano_plot_FC_vs_Pval_zoom",
+            "Differential_activity_distribution",
+        ]
+    else:
+        return []
+
+
+def get_activity_allelic_pairs_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "allelic_pairs_df" in activity_df["file"].values:
+        return [
+            "Cross_validation_allelic_pairs",
+            "Cross_validation_allelic_pairs_w_bar",
+        ]
+    else:
+        return []
+
+
+def get_activity_cell_types_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if not activity_df.empty and "cell_types_df" in activity_df["file"].values:
+        return [
+            "Cross_validation_cell_types",
+            "Cross_validation_cell_types_w_bar",
+        ]
+    else:
+        return []
+
+
+def get_activity_comparative_replicates_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if (
+        not activity_df.empty
+        and "allelic_pairs_replicates_df" in activity_df["file"].values
+    ):
+        return [
+            "Correlation_of_differential_activity_between_replicates_w_bar",
+            "Correlation_of_differential_activity_between_replicates",
+        ]
+    else:
+        return []
+
+
+def get_activity_sample_clusters_plots(
+    activity_df: pd.DataFrame,
+) -> list:
+    if (
+        not activity_df.empty
+        and "reads_by_group" in activity_df["file"].values
+        and "samples_metadata" in activity_df["file"].values
+    ):
+        return [
+            "Sample_clustering",
+        ]
+    else:
+        return []

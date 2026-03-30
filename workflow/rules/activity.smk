@@ -300,3 +300,234 @@ rule activity_screen_annotations:
         """
          python {input.script} activity screen-annotations --screen {input.screen} --output-path {params.outdir}
         """
+
+
+rule activity_tss_proximity:
+    input:
+        tss_distance=lookup(
+            within=activity_files,
+            query="file == 'tss_df'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_tss_proximity_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity tss-proximity --tss-distance {input.tss_distance} --output-path {params.outdir}
+        """
+
+
+rule activity_prediction_vs_activity:
+    input:
+        activity_prediction=lookup(
+            within=activity_files,
+            query="file == 'AI_df'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_prediction_vs_activity_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity prediction-vs-activity --activity-prediction {input.activity_prediction} --output-path {params.outdir}
+        """
+
+
+rule activity_prediction_vs_differential_activity:
+    input:
+        differential_activity_prediction=lookup(
+            within=activity_files,
+            query="file == 'AI_comparative_df'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_prediction_vs_differential_activity_plots(
+                activity_files
+            ),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity prediction-vs-differential-activity --differential-activity-prediction {input.differential_activity_prediction} --output-path {params.outdir}
+        """
+
+
+rule activity_comparative:
+    input:
+        differential_activity=lookup(
+            within=activity_files,
+            query="file == 'comparative_df'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_comparative_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity comparative --differential-activity {input.differential_activity} --output-path {params.outdir}
+        """
+
+
+rule activity_allelic_pairs:
+    input:
+        allelic_pairs=lookup(
+            within=activity_files,
+            query="file == 'allelic_pairs_df'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_allelic_pairs_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity allelic-pairs --allelic-pairs {input.allelic_pairs} --output-path {params.outdir}
+        """
+
+
+rule activity_cell_types:
+    input:
+        cell_types=lookup(
+            within=activity_files,
+            query="file == 'cell_types_df'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_cell_types_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity cell-types --cell-types {input.cell_types} --output-path {params.outdir}
+        """
+
+
+rule activity_comparative_replicates:
+    input:
+        differential_activity_replicates=lookup(
+            within=activity_files,
+            query="file == 'allelic_pairs_replicates_df'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_comparative_replicates_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity comparative-replicates --differential-activity-replicates {input.differential_activity_replicates} --output-path {params.outdir}
+        """
+
+
+rule activity_sample_clusters:
+    input:
+        reads_by_group=lookup(
+            within=activity_files,
+            query="file == 'reads_by_group'",
+            cols=["path"],
+        ),
+        sample_metadata=lookup(
+            within=activity_files,
+            query="file == 'samples_metadata'",
+            cols=["path"],
+        ),
+        script=getScript("mpra_qc_analysis.py"),
+        association_script=getScript("association_analysis.py"),
+        activity_script=getScript("activity_analysis.py"),
+        plot_lib=getScript("plot_lib.py"),
+        const_lib=getScript("const.py"),
+    output:
+        expand(
+            "results/{{project}}/activity/{plot}.{file_type}",
+            plot=get_activity_sample_clusters_plots(activity_files),
+            file_type=["pdf", "eps", "png", "svg"],
+        ),
+    conda:
+        getCondaEnv("default.yml")
+    params:
+        outdir=directory("results/{project}/activity/"),
+    shell:
+        """
+         python {input.script} activity sample-clusters --reads-by-group {input.reads_by_group} --sample-metadata {input.sample_metadata} --output-path {params.outdir}
+        """

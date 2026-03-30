@@ -85,7 +85,15 @@ General all rule to get all output files for MPRA QC analysis (default rule).
             + get_activity_downsampling_plots(activity_files)
             + get_activity_reproducibility_by_sequencing_depth_plots(activity_files)
             + get_activity_mimimise_noise_plots(activity_files)
-            + get_activity_screen_annotations_plots(activity_files),
+            + get_activity_screen_annotations_plots(activity_files)
+            + get_activity_tss_proximity_plots(activity_files)
+            + get_activity_prediction_vs_activity_plots(activity_files)
+            + get_activity_prediction_vs_differential_activity_plots(activity_files)
+            + get_activity_comparative_plots(activity_files)
+            + get_activity_allelic_pairs_plots(activity_files)
+            + get_activity_cell_types_plots(activity_files)
+            + get_activity_comparative_replicates_plots(activity_files)
+            + get_activity_sample_clusters_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
             project=config["project"],
         )
@@ -125,7 +133,15 @@ All rule to get all output files for the activity workflow.
             + get_activity_downsampling_plots(activity_files)
             + get_activity_reproducibility_by_sequencing_depth_plots(activity_files)
             + get_activity_mimimise_noise_plots(activity_files)
-            + get_activity_screen_annotations_plots(activity_files),
+            + get_activity_screen_annotations_plots(activity_files)
+            + get_activity_tss_proximity_plots(activity_files)
+            + get_activity_prediction_vs_activity_plots(activity_files)
+            + get_activity_prediction_vs_differential_activity_plots(activity_files)
+            + get_activity_comparative_plots(activity_files)
+            + get_activity_allelic_pairs_plots(activity_files)
+            + get_activity_cell_types_plots(activity_files)
+            + get_activity_comparative_replicates_plots(activity_files)
+            + get_activity_sample_clusters_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
             project=config["project"],
         )
