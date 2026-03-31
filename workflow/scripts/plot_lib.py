@@ -45,7 +45,6 @@ def _hill_model(x: np.ndarray, a: float, b: float, n: float) -> np.ndarray:
 
 
 def BCs_per_cCRE_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
     fig, ax_ecdf = plt.subplots()
     sns.ecdfplot(x=final_counts_df["barcode_count"], color=plot_color_pallete["barcode"], ax=ax_ecdf)
 
@@ -90,8 +89,7 @@ def BCs_per_cCRE_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
     return fig, ax_ecdf
 
 
-def Reads_per_association_plot(before_min_assoc_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
+def reads_per_association_plot(before_min_assoc_df: pd.DataFrame) -> tuple[Figure, Axes]:
     fig, ax_hist = plt.subplots()
     bin_width = 0.5
     min_val = 0
@@ -103,7 +101,7 @@ def Reads_per_association_plot(before_min_assoc_df: pd.DataFrame) -> tuple[Figur
         x="match_count",
         ax=ax_hist,
         color=plot_color_pallete["cCRE-barcode-pair"],
-        bins=bin_edges,
+        bins=bin_edges.tolist(),
         stat="percent",
     )
     ax_hist.set_xlabel("Number of Molecules")
@@ -115,8 +113,7 @@ def Reads_per_association_plot(before_min_assoc_df: pd.DataFrame) -> tuple[Figur
     return fig, ax_hist
 
 
-def Retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> tuple[Figure, Axes]:
-    plt.clf()
+def retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> tuple[Figure, Axes]:
     bc_thresholds = np.arange(0, 100, 1)
     oligo_counts = []
     for thr in bc_thresholds:
@@ -126,7 +123,7 @@ def Retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> 
     bc_thr_df = pd.DataFrame(data={"threshold": bc_thresholds, "perc": oligo_counts})
 
     fig, ax = plt.subplots()
-    sns.lineplot(data=bc_thr_df, x="threshold", y="perc", color=plot_color_pallete["cCRE"], linewidth=3)
+    sns.lineplot(data=bc_thr_df, x="threshold", y="perc", color=plot_color_pallete["cCRE"], linewidth=3, ax=ax)
     ax.set_ylabel("cCREs retained (%)")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda val, _: f"{val * 100:.0f}%"))
     ax.set_xlabel("Minimum barcodes per cCRE")
@@ -136,7 +133,6 @@ def Retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> 
 
 
 def cCREs_per_BC_plot(promiscuity_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
     fig, ax_hist = plt.subplots()
     bin_width = 0.5
     min_val = promiscuity_counts_df["cCRE_count"].min()
@@ -212,7 +208,6 @@ def PCR_bias_GC_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
 
 
 def PCR_bias_G_stretches_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
     fig, ax_hist = plt.subplots()
     xs = np.sort(final_counts_df["g_stretch"].unique())
     data = [np.asarray(final_counts_df.loc[final_counts_df["g_stretch"] == x, "association_count"]) for x in xs]
@@ -380,7 +375,7 @@ def ratio_correlation_between_replicates_plot(activity_by_rep: pd.DataFrame, sho
 
     fig, ax = plt.subplots()
 
-    hb = plt.hexbin(
+    hb = ax.hexbin(
         x,
         y,
         gridsize=200,
@@ -418,7 +413,7 @@ def ratio_correlation_with_controls_plot(activity_by_rep, neg, pos):
     fig, ax = plt.subplots()
 
     # --- Background as uniform-gray hexgrid (no density coloring) ---
-    hb = plt.hexbin(
+    hb = ax.hexbin(
         x,
         y,
         gridsize=200,  # hex resolution
@@ -470,7 +465,7 @@ def ratio_correlation_with_controls_plot(activity_by_rep, neg, pos):
 
 def activity_distribution_plot(act_df: pd.DataFrame) -> tuple[Figure, Axes]:
     fig, ax = plt.subplots()
-    bin_edges = np.linspace(-4, 4, 201)  # 100 bins between -10 and 20
+    bin_edges = np.linspace(-4, 4, 201).tolist()  # 100 bins between -10 and 20
     ax.hist(
         act_df["RNA_DNA_ratio_log_rep_comb"],
         bins=bin_edges,
@@ -579,7 +574,7 @@ def rna_dna_ratio_hexbin_plot(act_df, DNA_counts, RNA_counts) -> tuple[Figure, A
     ax.set_xlabel("DNA count")
     ax.set_ylabel("RNA count")
 
-    cbar = plt.colorbar(hb)
+    cbar = plt.colorbar(hb, ax=ax)
     cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
 
     return fig, ax
@@ -854,7 +849,7 @@ def activity_statistic_vs_count_ratio_plot(act_df: pd.DataFrame, min_DNA_reads: 
 
     ax.set_xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$")
     ax.set_ylabel(r"Activity score")
-    ax.text(0.95, 0.05, s=rf"r= {round(r,3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
+    ax.text(0.95, 0.05, s=rf"r= {r:.3f}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
     # ax.set_xlim(-4, 6)
     # ax.set_ylim(-4, 6)
     ax.set_xticks([np.round(x.min()), np.round(x.max())])
@@ -928,6 +923,7 @@ def bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc: pd.DataFr
         alpha=0.9,
         palette=c_palette,
         dashes=False,
+        ax=ax,
     )
 
     ax.scatter(x_pred, y_pred_DNA, color="lightgray", marker="s", s=30, alpha=0.5)
@@ -1021,6 +1017,7 @@ def ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre: pd.Da
         alpha=0.9,
         palette=c_palette,
         dashes=False,
+        ax=ax,
     )
 
     ax.scatter(x_pred, y_pred_DNA, color="lightgray", marker="s", s=30, alpha=0.5)
@@ -1180,7 +1177,10 @@ def cCRE_annotation_by_activity_plot(annotated_screen_df) -> tuple[Figure, Axes]
     counts_df = counts_df.reset_index()
     counts_df_wide = counts_df.pivot(index="bin", columns=["class"], values="count")
     counts_df_wide = counts_df_wide.reset_index()
-    counts_df_wide_prop = counts_df_wide.iloc[:, 1:].apply(lambda x: x / x.sum(), axis=1)
+    cols = counts_df_wide.columns[1:]
+    counts_df_wide_prop = counts_df_wide.copy()
+    counts_df_wide_prop[cols] = counts_df_wide[cols].div(counts_df_wide[cols].sum(axis=0), axis=1)
+    # counts_df_wide_prop = counts_df_wide.iloc[:, 1:].apply(lambda x: x / x.sum(), axis=1)
     counts_df_wide_prop["bin"] = counts_df_wide["bin"]
     bin_order = ["Inactive", "Q1", "Q2", "Q3", "Q4", "Q5"]
     counts_df_wide_prop["bin"] = pd.Categorical(counts_df_wide_prop["bin"], categories=bin_order, ordered=True)
@@ -1254,7 +1254,7 @@ def ai_predictions_vs_activity_hexbin_plot(AI_pred_df: pd.DataFrame, colorbar: b
     ax_scat.set_xlabel("AI-predicted activity")
     ax_scat.set_ylabel("Experimentally measured activity")
     ax_scat.text(
-        0.05, 0.95, s=rf"r= {round(r,3)}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
+        0.05, 0.95, s=rf"r= {r:.3f}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
     )
     if colorbar:
         cbar = plt.colorbar(hb, ax=ax_scat)
@@ -1266,7 +1266,6 @@ def ai_predictions_vs_activity_hexbin_plot(AI_pred_df: pd.DataFrame, colorbar: b
 def ai_predictions_vs_differential_activity_hexbin_plot(
     AI_comparative_pred_df: pd.DataFrame, colorbar: bool
 ) -> tuple[Figure, Axes]:
-    plt.clf()
     y = np.asarray(AI_comparative_pred_df["LFC - exp"].values)
     x = np.asarray(AI_comparative_pred_df["LFC - AI"].values)
     # Create the KDE (Kernel Density Estimate)
@@ -1284,7 +1283,7 @@ def ai_predictions_vs_differential_activity_hexbin_plot(
     ax_scat.set_xlabel("AI-predicted differential activity")
     ax_scat.set_ylabel("Experimentally measured differential activity")
     ax_scat.text(
-        0.05, 0.95, s=rf"r= {round(r, 3)}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
+        0.05, 0.95, s=rf"r= {r:.3f}", transform=ax_scat.transAxes, verticalalignment="top", horizontalalignment="left"
     )
     if colorbar:
         cbar = plt.colorbar(hb, ax=ax_scat)
@@ -1295,22 +1294,26 @@ def ai_predictions_vs_differential_activity_hexbin_plot(
 
 def differential_activity_distribution_plot(comparative_df: pd.DataFrame) -> tuple[Figure, Axes]:
 
-    def round_down(num, dec=0):
+    def round_down(num: float, dec: int = 0) -> float:
         mult = 10**dec
         return math.floor(num * mult) / mult
 
-    def round_up(num, dec=0):
+    def round_up(num: float, dec: int = 0) -> float:
         mult = 10**dec
         return math.ceil(num * mult) / mult
 
-    max_lim = round_up(comparative_df["logFC"].max(), 2)
-    min_lim = round_down(comparative_df["logFC"].min(), 2)
-    bins = np.arange(min_lim, max_lim, 0.05)
+    max_lim = round_up(float(comparative_df["logFC"].max()), 2)
+    min_lim = round_down(float(comparative_df["logFC"].min()), 2)
+    bin_width = 0.05
+    bins = np.arange(min_lim, max_lim + bin_width, bin_width).tolist()
 
     fig, ax = plt.subplots()
-    comparative_df["logFC"].hist(color="gray", bins=bins, label="Active", grid=False, ax=ax)
-    comparative_df.loc[comparative_df["differentialy_active"] == True, "logFC"].hist(
-        color="red", bins=bins, label="Differentially active", grid=False, ax=ax
+    ax.hist(comparative_df["logFC"].to_numpy(dtype=float), color="gray", bins=bins, label="Active")
+    ax.hist(
+        comparative_df.loc[comparative_df["differentialy_active"] == True, "logFC"].to_numpy(dtype=float),
+        color="red",
+        bins=bins,
+        label="Differentially active",
     )
     ax.set_xlabel("Fold Change, log2")
     ax.set_ylabel("#cCREs")
@@ -1378,7 +1381,7 @@ def allelic_pairs_hexbin_plot(pair_df: pd.DataFrame, colorbar: bool) -> tuple[Fi
     ax.set_ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allele 2")
 
     r = pearsonr(x, y)[0]
-    ax.text(0.05, 0.95, s=rf"r= {round(r, 3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
+    ax.text(0.05, 0.95, s=rf"r= {r:.3f}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
 
     ax.set_xticks([np.round(x.min()), np.round(x.max())])
     ax.set_yticks([np.round(y.min()), np.round(y.max())])
@@ -1411,7 +1414,7 @@ def cell_types_hexbin_plot(cell_type_df: pd.DataFrame, colorbar: bool) -> tuple[
     ax.set_xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ Cell type 1")
     ax.set_ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ Cell type 2")
     r, p = pearsonr(x, y)
-    ax.text(0.90, 0.05, s=rf"r= {round(r, 3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
+    ax.text(0.90, 0.05, s=rf"r= {r:.3f}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
     ax.set_xticks([np.round(x.min()), np.round(x.max())])
     ax.set_yticks([np.round(y.min()), np.round(y.max())])
 
@@ -1440,7 +1443,7 @@ def diff_activity_corr_reps_hexbin_plot(pair_rep_df: pd.DataFrame, colorbar: boo
     ax.set_xlabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allelic difference")
     ax.set_ylabel(r"$\log_{2}\!\left(\frac{\mathrm{RNA}}{\mathrm{DNA}}\right)$ allelic difference")
     r = pearsonr(x, y)[0]
-    ax.text(0.05, 0.95, s=rf"r= {round(r, 3)}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
+    ax.text(0.05, 0.95, s=rf"r= {r:.3f}", transform=ax.transAxes, verticalalignment="top", horizontalalignment="left")
 
     ax.set_xticks([np.floor(x.min()), np.ceil(x.max())])
     ax.set_yticks([np.floor(y.min()), np.ceil(y.max())])
