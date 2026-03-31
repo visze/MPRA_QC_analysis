@@ -1,5 +1,6 @@
 import ast  # for safe eveal, for parsing some of the data
 import os
+from typing import Any
 
 import click
 import const  # to reload use import(importlib) and then importlib.reload(const)
@@ -120,7 +121,7 @@ def vectorize_df_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     df = df[["RNA_rep1", "DNA_rep1", "RNA_rep2", "DNA_rep2", "RNA_rep3", "DNA_rep3"]]
 
-    def safe_eval(x):
+    def safe_eval(x: Any) -> Any:
         if pd.isna(x):  # catches np.nan, pd.NA, None
             return np.nan
         try:
@@ -128,8 +129,7 @@ def vectorize_df_columns(df: pd.DataFrame) -> pd.DataFrame:
         except (ValueError, SyntaxError):
             return x  # fallback: return as-is if it cannot be parsed
 
-    df_vectorized = df.applymap(safe_eval)
-    return df_vectorized
+    return df.apply(lambda col: col.map(safe_eval))
 
 
 def melt_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -139,10 +139,11 @@ def melt_df(df: pd.DataFrame) -> pd.DataFrame:
         series = df[col]
 
         # drop NAs and ensure all entries are lists
-        series = series.dropna().apply(lambda x: np.asarray(x, dtype=float))
+        series = series.dropna()
+        series = pd.Series([np.asarray(x, dtype=float) for x in series], index=series.index)
 
         # 1. Fraction of rows with at least one non-zero
-        frac_rows_nonzero = (series.apply(lambda arr: np.any(arr != 0))).mean()
+        frac_rows_nonzero = np.mean([np.any(arr != 0) for arr in series])
 
         # 2. Flatten everything into one list and compute fraction non-zero
         if len(series) > 0:
@@ -272,7 +273,7 @@ def plot_reproducibility_by_sequencing_depth(ds_activity_path, ds_ratio_path, ou
 
 
 def plot_cumulative_RNA_reads(act_df: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.cumulative_rna_reads_plot(act_df)
     const.save_fig(fig, "Cumulative_RNA_reads", output_path)
     click.echo("Cumulative_RNA_reads DONE")
@@ -313,14 +314,14 @@ def create_gc_df(act_df: pd.DataFrame, f_file: str) -> pd.DataFrame:
 
 
 def plot_gc_content_bias(final_counts_df: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.gc_content_bias_plot(final_counts_df)
     const.save_fig(fig, "DNA_counts_vs_GC_content", output_path)
     click.echo("DNA_counts_vs_GC_content DONE")
 
 
 def plot_ratio_correlation_between_replicates(activity_by_rep: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.ratio_correlation_between_replicates_plot(activity_by_rep, False)
     const.save_fig(fig, "Correlation_between_replicates", output_path)
 
@@ -331,7 +332,7 @@ def plot_ratio_correlation_between_replicates(activity_by_rep: pd.DataFrame, out
 
 
 def plot_Replicability_by_activity(activity_by_rep: pd.DataFrame, act_df: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.replicability_by_activity_plot(activity_by_rep, act_df)
     const.save_fig(fig, "Replicability_by_activity", output_path)
     click.echo("Replicability_by_activity DONE")
@@ -340,28 +341,28 @@ def plot_Replicability_by_activity(activity_by_rep: pd.DataFrame, act_df: pd.Dat
 def plot_ratio_correlation_with_controls(
     activity_by_rep: pd.DataFrame, neg: pd.DataFrame, pos: pd.DataFrame, output_path: str
 ) -> None:
-    
+
     fig, _ = plot_lib.ratio_correlation_with_controls_plot(activity_by_rep, neg, pos)
     const.save_fig(fig, "Correlation_between_replicates_controls", output_path)
     click.echo("Correlation between replicates (controls) DONE")
 
 
 def plot_minimizing_noise_hexbin(noise_df: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.minimizing_noise_hexbin_plot(noise_df)
     const.save_fig(fig, "Minimizing_noise", output_path)
     click.echo("Minimizing_noise DONE")
 
 
 def plot_RNA_DNA_ratio_hexbin(act_df: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.rna_dna_ratio_hexbin_plot(act_df, DNA_counts, RNA_counts)
     const.save_fig(fig, "RNA_vs_DNA_w_bar", output_path)
     click.echo("RNA_vs_DNA DONE")
 
 
 def plot_control_boxplots(act_df: pd.DataFrame, neg: pd.DataFrame, pos: pd.DataFrame, test: str, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.control_boxplots_plot(act_df, neg, pos, test)
     const.save_fig(fig, "Activity_of_controls", output_path)
     click.echo("Activity_of_controls DONE")
@@ -393,10 +394,10 @@ def plot_AI_predictions_vs_activity_hexbin(ai_pred_df: pd.DataFrame, output_path
 
 
 def plot_AI_predictions_vs_differential_activity_hexbin(ai_comparative_pred_df: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.ai_predictions_vs_differential_activity_hexbin_plot(ai_comparative_pred_df, colorbar=False)
     const.save_fig(fig, "AI_predictions_vs_differential_activity", output_path)
-    
+
     plt.clf()
     fig, _ = plot_lib.ai_predictions_vs_differential_activity_hexbin_plot(ai_comparative_pred_df, colorbar=True)
     const.save_fig(fig, "AI_predictions_vs_differential_activity_w_bar", output_path)
@@ -404,7 +405,7 @@ def plot_AI_predictions_vs_differential_activity_hexbin(ai_comparative_pred_df: 
 
 
 def plot_differential_activity_distribution(comparative_df, output_path):
-    
+
     fig, _ = plot_lib.differential_activity_distribution_plot(comparative_df)
     const.save_fig(fig, "Differential_activity_distribution", output_path)
     click.echo("Differential_activity_distribution DONE")
@@ -414,7 +415,7 @@ def plot_differential_activity_volcano(comparative_df, output_path):
 
     fig, _ = plot_lib.differential_activity_volcano_plot(comparative_df, zoom=False)
     const.save_fig(fig, "Volcano_plot_FC_vs_Pval", output_path)
-    
+
     plt.clf()
     fig, _ = plot_lib.differential_activity_volcano_plot(comparative_df, zoom=True)
     const.save_fig(fig, "Volcano_plot_FC_vs_Pval_zoom", output_path)
@@ -422,7 +423,7 @@ def plot_differential_activity_volcano(comparative_df, output_path):
 
 
 def plot_activity_statistic_vs_count_ratio(act_df, output_path):
-    
+
     fig, _ = plot_lib.activity_statistic_vs_count_ratio_plot(act_df, min_DNA_reads)
     const.save_fig(fig, "Activity_statistic_vs_count_ratio", output_path)
     click.echo("Activity_statistic_vs_count_ratio DONE")
@@ -468,10 +469,10 @@ def downsampling_preprocessing(ds_ratio_path: str) -> tuple[pd.DataFrame, pd.Dat
             series = activity_by_rep_df_vectorized[col]
 
             # drop NAs and ensure all entries are lists
-            series = series.dropna().apply(lambda x: np.asarray(x, dtype=float))
-
+            series = series.dropna()
+            series = pd.Series([np.asarray(x, dtype=float) for x in series], index=series.index)
             # 1. Fraction of rows with at least one non-zero
-            frac_rows_nonzero = (series.apply(lambda arr: np.any(arr != 0))).mean()
+            frac_rows_nonzero = np.mean([np.any(arr != 0) for arr in series])
 
             # 2. Flatten everything into one list and compute fraction non-zero
             if len(series) > 0:
@@ -506,14 +507,14 @@ def downsampling_preprocessing(ds_ratio_path: str) -> tuple[pd.DataFrame, pd.Dat
 
 
 def plot_BC_retention_by_DNA_RNA_sequencing_depth(reps_sampling_df_bc: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc)
     const.save_fig(fig, "BC_retention_by_DNA_RNA_sequencing_depth", output_path)
     click.echo("BC_retention_by_DNA_RNA_sequencing_depth DONE")
 
 
 def plot_cCRE_retention_by_DNA_RNA_sequencing_depth(reps_sampling_df_ccre: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre)
     const.save_fig(fig, "cCRE_retention_by_DNA_RNA_sequencing_depth", output_path)
     click.echo("cCRE_retention_by_DNA_RNA_sequencing_depth DONE")
@@ -553,7 +554,7 @@ def plot_diff_activity_corr_reps_hexbin(pair_rep_df: pd.DataFrame, output_path: 
 
 
 def plot_sample_clustering(reads_df: pd.DataFrame, metadata_df: pd.DataFrame, output_path: str) -> None:
-    
+
     fig, _ = plot_lib.sample_clustering_plot(reads_df, metadata_df)
     const.save_fig(fig, "Sample_clustering", output_path)
     click.echo("Sample_clustering DONE")
