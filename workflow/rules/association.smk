@@ -19,13 +19,15 @@ rule association_final:
             plot=get_association_final_plots(association_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/association/final.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/association/"),
     shell:
         """
-         python {input.script}  association final --design {input.design} --associations {input.associations} --output-path {params.outdir}
+         python {input.script}  association final --design {input.design} --associations {input.associations} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -50,6 +52,8 @@ rule association_before_minimum_observations:
             plot=get_association_before_minimum_observations_plots(association_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/association/before_minimum_observations.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
@@ -57,7 +61,7 @@ rule association_before_minimum_observations:
         design=lambda wc, input: f"--design {input.design[0]}" if input.design else "",
     shell:
         """
-         python {input.script} association before-minimum-observations --associations {input.associations} {params.design} --output-path {params.outdir}
+         python {input.script} association before-minimum-observations --associations {input.associations} {params.design} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -82,6 +86,8 @@ rule association_before_promiscuity:
             plot=get_association_before_promiscuity_plots(association_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/association/before_promiscuity.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
@@ -89,7 +95,7 @@ rule association_before_promiscuity:
         design=lambda wc, input: f"--design {input.design[0]}" if input.design else "",
     shell:
         """
-         python {input.script}  association before-promiscuity --associations {input.associations} {params.design} --output-path {params.outdir}
+         python {input.script}  association before-promiscuity --associations {input.associations} {params.design} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -114,11 +120,13 @@ rule association_downsampling:
             plot=get_association_downsampling_plots(association_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/association/downsampling.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/association/"),
     shell:
         """
-         python {input.script}  association downsampling --design {input.design} --downsampling-path {input.downsampling_path} --output-path {params.outdir}
+         python {input.script}  association downsampling --design {input.design} --downsampling-path {input.downsampling_path} --output-path {params.outdir} > {log} 2>&1
         """

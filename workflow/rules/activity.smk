@@ -16,13 +16,15 @@ rule activity_main:
             plot=get_activity_main_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/main.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity main --activity {input.activity} --output-path {params.outdir}
+         python {input.script} activity main --activity {input.activity} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -49,13 +51,15 @@ rule activity_control_boxplots:
             plot=get_activity_control_boxplots_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/control_boxplots.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity control-boxplots --activity {input.activity} --controls {input.controls} --output-path {params.outdir}
+         python {input.script} activity control-boxplots --activity {input.activity} --controls {input.controls} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -82,13 +86,15 @@ rule activity_replicability_by_activity:
             plot=get_activity_replicability_by_activity_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/replicability_by_activity.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity replicability-by-activity --activity {input.activity} --activity-per-rep {input.activity_per_rep} --output-path {params.outdir}
+         python {input.script} activity replicability-by-activity --activity {input.activity} --activity-per-rep {input.activity_per_rep} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -115,13 +121,15 @@ rule activity_gc_content_bias:
             plot=get_activity_gc_content_bias_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/gc_content_bias.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity gc-content-bias --activity {input.activity} --design {input.design} --output-path {params.outdir}
+         python {input.script} activity gc-content-bias --activity {input.activity} --design {input.design} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -145,13 +153,15 @@ rule activity_ratio_correlation_between_replicates:
             ),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/ratio_correlation_between_replicates.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity ratio-correlation-between-replicates --activity-per-rep {input.activity_per_rep} --output-path {params.outdir}
+         python {input.script} activity ratio-correlation-between-replicates --activity-per-rep {input.activity_per_rep} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -178,13 +188,15 @@ rule activity_ratio_correlation_with_controls:
             plot=get_activity_ratio_correlation_with_controls_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/ratio_correlation_with_controls.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity ratio-correlation-with-controls --activity-per-rep {input.activity_per_rep} --controls {input.controls} --output-path {params.outdir}
+         python {input.script} activity ratio-correlation-with-controls --activity-per-rep {input.activity_per_rep} --controls {input.controls} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -206,13 +218,15 @@ rule activity_downsampling:
             plot=get_activity_downsampling_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/downsampling.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity downsampling --downsampling-activity-path {input.downsampling_activity_path} --output-path {params.outdir}
+         python {input.script} activity downsampling --downsampling-activity-path {input.downsampling_activity_path} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -236,13 +250,15 @@ rule activity_reproducibility_by_sequencing_depth:
             ),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/reproducibility_by_sequencing_depth.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity reproducibility-by-sequencing-depth --downsampling-ratio-path {input.downsampling_ratio_path} --output-path {params.outdir}
+         python {input.script} activity reproducibility-by-sequencing-depth --downsampling-ratio-path {input.downsampling_ratio_path} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -264,13 +280,15 @@ rule activity_mimimise_noise:
             plot=get_activity_mimimise_noise_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/minimise_noise.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity mimimise-noise --sdt-thresholds {input.sdt_thresholds} --output-path {params.outdir}
+         python {input.script} activity mimimise-noise --sdt-thresholds {input.sdt_thresholds} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -292,13 +310,15 @@ rule activity_screen_annotations:
             plot=get_activity_screen_annotations_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/screen_annotations.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity screen-annotations --screen {input.screen} --output-path {params.outdir}
+         python {input.script} activity screen-annotations --screen {input.screen} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -320,13 +340,15 @@ rule activity_tss_proximity:
             plot=get_activity_tss_proximity_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/tss_proximity.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity tss-proximity --tss-distance {input.tss_distance} --output-path {params.outdir}
+         python {input.script} activity tss-proximity --tss-distance {input.tss_distance} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -348,13 +370,15 @@ rule activity_prediction_vs_activity:
             plot=get_activity_prediction_vs_activity_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/prediction_vs_activity.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity prediction-vs-activity --activity-prediction {input.activity_prediction} --output-path {params.outdir}
+         python {input.script} activity prediction-vs-activity --activity-prediction {input.activity_prediction} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -378,13 +402,15 @@ rule activity_prediction_vs_differential_activity:
             ),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/prediction_vs_differential_activity.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity prediction-vs-differential-activity --differential-activity-prediction {input.differential_activity_prediction} --output-path {params.outdir}
+         python {input.script} activity prediction-vs-differential-activity --differential-activity-prediction {input.differential_activity_prediction} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -406,13 +432,15 @@ rule activity_comparative:
             plot=get_activity_comparative_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/comparative.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity comparative --differential-activity {input.differential_activity} --output-path {params.outdir}
+         python {input.script} activity comparative --differential-activity {input.differential_activity} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -434,13 +462,15 @@ rule activity_allelic_pairs:
             plot=get_activity_allelic_pairs_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/allelic_pairs.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity allelic-pairs --allelic-pairs {input.allelic_pairs} --output-path {params.outdir}
+         python {input.script} activity allelic-pairs --allelic-pairs {input.allelic_pairs} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -462,13 +492,15 @@ rule activity_cell_types:
             plot=get_activity_cell_types_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/cell_types.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity cell-types --cell-types {input.cell_types} --output-path {params.outdir}
+         python {input.script} activity cell-types --cell-types {input.cell_types} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -490,13 +522,15 @@ rule activity_comparative_replicates:
             plot=get_activity_comparative_replicates_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/comparative_replicates.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity comparative-replicates --differential-activity-replicates {input.differential_activity_replicates} --output-path {params.outdir}
+         python {input.script} activity comparative-replicates --differential-activity-replicates {input.differential_activity_replicates} --output-path {params.outdir} > {log} 2>&1
         """
 
 
@@ -523,11 +557,13 @@ rule activity_sample_clusters:
             plot=get_activity_sample_clusters_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
+    log:
+        "logs/activity/sample_clusters.{project}.log",
     conda:
         getCondaEnv("default.yml")
     params:
         outdir=directory("results/{project}/activity/"),
     shell:
         """
-         python {input.script} activity sample-clusters --reads-by-group {input.reads_by_group} --sample-metadata {input.sample_metadata} --output-path {params.outdir}
+         python {input.script} activity sample-clusters --reads-by-group {input.reads_by_group} --sample-metadata {input.sample_metadata} --output-path {params.outdir} > {log} 2>&1
         """
