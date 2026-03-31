@@ -13,33 +13,34 @@
 # •	Input paths
 
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 
 # Standard font size and family
-FONT_SIZE_small = 18  # changed from 16 NM 06-02-2025
-FONT_SIZE_big = 20  # changed from 18 NM 06-02-2025
+FONT_SIZE_small: int = 18  # changed from 16 NM 06-02-2025
+FONT_SIZE_big: int = 20  # changed from 18 NM 06-02-2025
 
-FONT_FAMILY = "arial"
+FONT_FAMILY: str = "arial"
 
 # Define color maps for different data
-pos_active_ctrl_color = "g"
-neg_active_ctrl_color = "r"
-highlight_color = "y"
+pos_active_ctrl_color: str = "g"
+neg_active_ctrl_color: str = "r"
+highlight_color: str = "y"
 
-DIFF_ACTIVITY_COLOR = "green"
+DIFF_ACTIVITY_COLOR: str = "green"
 
 # Custom colormap for scatterplots
 
-colors = ["#EBF4FF", "#E1ECFA", "#D0E0F5", "#FFFFBF", "#FEE090", "#FDAE61", "#F46D43", "#D73027", "#A50026"]
-custom_cmap = LinearSegmentedColormap.from_list("custom_cmap", colors, N=256)
+colors: list[str] = ["#EBF4FF", "#E1ECFA", "#D0E0F5", "#FFFFBF", "#FEE090", "#FDAE61", "#F46D43", "#D73027", "#A50026"]
+custom_cmap: LinearSegmentedColormap = LinearSegmentedColormap.from_list("custom_cmap", colors, N=256)
 
-colors = ["#FEE090", "#FDAE61", "#F46D43", "#D73027", "#A50026"]
-custom_cmap_bolder = LinearSegmentedColormap.from_list("custom_cmap", colors, N=256)
+colors: list[str] = ["#FEE090", "#FDAE61", "#F46D43", "#D73027", "#A50026"]
+custom_cmap_bolder: LinearSegmentedColormap = LinearSegmentedColormap.from_list("custom_cmap", colors, N=256)
 
 
 # Set default figure style
-def set_plot_style():
+def set_plot_style() -> None:
     """
     Set standardized figure settings for matplotlib.
     """
@@ -68,7 +69,7 @@ def set_plot_style():
 #     _ = plt.figure(figsize=(9,9)) # TODO: adjust figure size to comply with fontsize
 
 
-def save_fig(fig, name, path):
+def save_fig(fig: Figure, name: str, path: str) -> None:
     """
     Save the figure to the specified path in PNG and EPS formats at 500 dpi.
     """
@@ -78,7 +79,7 @@ def save_fig(fig, name, path):
     fig.savefig(f"{path}/{name}.pdf", dpi=500, bbox_inches="tight", transparent=True)
 
 
-def set_equal_plot_limits(x, y):
+def set_equal_plot_limits(x: np.ndarray, y: np.ndarray) -> None:
     """
     Sets the x and y axis limits to the same range based on the min and max values of x and y.
 
@@ -93,7 +94,7 @@ def set_equal_plot_limits(x, y):
     plt.ylim([min_limit, max_limit])
 
 
-plot_color_pallete = {
+plot_color_pallete: dict[str, str] = {
     "default_color": "#AEAEAE",
     "cCRE": "#3D9F95",  # orange
     "barcode": "#227C9D",  # turquoise
