@@ -1,0 +1,22 @@
+---
+$schema: "https://json-schema.org/draft/2020-12/schema"
+
+$id: /schemas/association_file.schema.yaml
+
+description: Association file, which contains paths to the files needed for the associations step.
+
+type: object
+
+# columns that the config/samples.tsv file can have and which type they should be
+properties:
+  file:
+    type: string
+    enum: ["cCRE_fasta", "associations_before_promiscuity", "associations_before_minimum_observations", "final_associations", "associations_downsampling_path", "output_path"]
+    description: File type, e.g. cCRE_fasta, associations_before_promiscuity, associations_before_minimum_observations, final_associations, associations_downsampling_path, or output_path.
+  path:
+    type: string
+    description: Path to the file.
+required:
+  - file
+  - path
+additionalProperties: false
