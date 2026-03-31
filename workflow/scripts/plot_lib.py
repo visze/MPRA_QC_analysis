@@ -45,7 +45,6 @@ def _hill_model(x: np.ndarray, a: float, b: float, n: float) -> np.ndarray:
 
 
 def BCs_per_cCRE_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
     fig, ax_ecdf = plt.subplots()
     sns.ecdfplot(x=final_counts_df["barcode_count"], color=plot_color_pallete["barcode"], ax=ax_ecdf)
 
@@ -90,8 +89,7 @@ def BCs_per_cCRE_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
     return fig, ax_ecdf
 
 
-def Reads_per_association_plot(before_min_assoc_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
+def reads_per_association_plot(before_min_assoc_df: pd.DataFrame) -> tuple[Figure, Axes]:
     fig, ax_hist = plt.subplots()
     bin_width = 0.5
     min_val = 0
@@ -115,8 +113,7 @@ def Reads_per_association_plot(before_min_assoc_df: pd.DataFrame) -> tuple[Figur
     return fig, ax_hist
 
 
-def Retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> tuple[Figure, Axes]:
-    plt.clf()
+def retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> tuple[Figure, Axes]:
     bc_thresholds = np.arange(0, 100, 1)
     oligo_counts = []
     for thr in bc_thresholds:
@@ -126,7 +123,7 @@ def Retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> 
     bc_thr_df = pd.DataFrame(data={"threshold": bc_thresholds, "perc": oligo_counts})
 
     fig, ax = plt.subplots()
-    sns.lineplot(data=bc_thr_df, x="threshold", y="perc", color=plot_color_pallete["cCRE"], linewidth=3)
+    sns.lineplot(data=bc_thr_df, x="threshold", y="perc", color=plot_color_pallete["cCRE"], linewidth=3, ax=ax)
     ax.set_ylabel("cCREs retained (%)")
     ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda val, _: f"{val * 100:.0f}%"))
     ax.set_xlabel("Minimum barcodes per cCRE")
@@ -136,7 +133,6 @@ def Retained_cCREs_plot(final_counts_df: pd.DataFrame, full_oligo_list: set) -> 
 
 
 def cCREs_per_BC_plot(promiscuity_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
     fig, ax_hist = plt.subplots()
     bin_width = 0.5
     min_val = promiscuity_counts_df["cCRE_count"].min()
@@ -212,7 +208,6 @@ def PCR_bias_GC_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
 
 
 def PCR_bias_G_stretches_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
-    plt.clf()
     fig, ax_hist = plt.subplots()
     xs = np.sort(final_counts_df["g_stretch"].unique())
     data = [np.asarray(final_counts_df.loc[final_counts_df["g_stretch"] == x, "association_count"]) for x in xs]
@@ -380,7 +375,7 @@ def ratio_correlation_between_replicates_plot(activity_by_rep: pd.DataFrame, sho
 
     fig, ax = plt.subplots()
 
-    hb = plt.hexbin(
+    hb = ax.hexbin(
         x,
         y,
         gridsize=200,
@@ -418,7 +413,7 @@ def ratio_correlation_with_controls_plot(activity_by_rep, neg, pos):
     fig, ax = plt.subplots()
 
     # --- Background as uniform-gray hexgrid (no density coloring) ---
-    hb = plt.hexbin(
+    hb = ax.hexbin(
         x,
         y,
         gridsize=200,  # hex resolution
@@ -579,7 +574,7 @@ def rna_dna_ratio_hexbin_plot(act_df, DNA_counts, RNA_counts) -> tuple[Figure, A
     ax.set_xlabel("DNA count")
     ax.set_ylabel("RNA count")
 
-    cbar = plt.colorbar(hb)
+    cbar = plt.colorbar(hb, ax=ax)
     cbar.set_label("log10(count) per hexbin")  # or 'log10(count)' if using LogNorm
 
     return fig, ax
@@ -928,6 +923,7 @@ def bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc: pd.DataFr
         alpha=0.9,
         palette=c_palette,
         dashes=False,
+        ax=ax,
     )
 
     ax.scatter(x_pred, y_pred_DNA, color="lightgray", marker="s", s=30, alpha=0.5)
@@ -1021,6 +1017,7 @@ def ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre: pd.Da
         alpha=0.9,
         palette=c_palette,
         dashes=False,
+        ax=ax,
     )
 
     ax.scatter(x_pred, y_pred_DNA, color="lightgray", marker="s", s=30, alpha=0.5)
@@ -1266,7 +1263,6 @@ def ai_predictions_vs_activity_hexbin_plot(AI_pred_df: pd.DataFrame, colorbar: b
 def ai_predictions_vs_differential_activity_hexbin_plot(
     AI_comparative_pred_df: pd.DataFrame, colorbar: bool
 ) -> tuple[Figure, Axes]:
-    plt.clf()
     y = np.asarray(AI_comparative_pred_df["LFC - exp"].values)
     x = np.asarray(AI_comparative_pred_df["LFC - AI"].values)
     # Create the KDE (Kernel Density Estimate)
