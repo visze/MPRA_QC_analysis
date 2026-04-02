@@ -50,6 +50,46 @@ if "activity" in config:
     validate(activity_files, schema="../schemas/activity_file.schema.yml")
 
 
+def add_or_replace_file_in_df(
+    df: pd.DataFrame, file_name: str, file_path: str
+) -> pd.DataFrame:
+    if (df["file"] == file_name).any():
+        df.loc[df["file"] == file_name, "path"] = file_path
+    else:
+        df = pd.concat(
+            [
+                df,
+                pd.DataFrame([{"file": file_name, "path": file_path}]),
+            ],
+            ignore_index=True,
+        )
+    return df
+
+
+if "mprasnakeflow" in config:
+    if "assignment" in config["mprasnakeflow"]:
+        association_files = add_or_replace_file_in_df(
+            association_files,
+            "final_associations",
+            f"results/{config['project']}/preprocessing/mprasnakeflow/association/final_associations.csv.gz",
+        )
+        association_files = add_or_replace_file_in_df(
+            association_files,
+            "associations_before_promiscuity",
+            f"results/{config['project']}/preprocessing/mprasnakeflow/association/associations_before_promiscuity.csv.gz",
+        )
+        association_files = add_or_replace_file_in_df(
+            association_files,
+            "associations_before_minimum_observations",
+            f"results/{config['project']}/preprocessing/mprasnakeflow/association/associations_before_minimum_observations.csv.gz",
+        )
+    if "activity" in config["mprasnakeflow"]:
+        activity_files = add_or_replace_file_in_df(
+            activity_files,
+            "activity_df",
+            f"results/{config['project']}/analysis/mprasnakeflow/activity/activity_df.csv.gz",
+        )
+
 ################################
 #### HELPERS AND EXCEPTIONS ####
 ################################

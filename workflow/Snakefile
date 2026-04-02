@@ -157,6 +157,9 @@ All rule to get all output files for the activity workflow.
 ###################
 
 
+# mprasnakeflow preprocessing rules
+include: "rules/preprocessing/mprasnakeflow/assignment.smk"
+include: "rules/preprocessing/mprasnakeflow/experiment.smk"
 # association workflow
 include: "rules/association.smk"
 # activity workflow
