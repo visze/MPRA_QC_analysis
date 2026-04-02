@@ -22,6 +22,8 @@ It is designed for researchers who want a ready-to-use, reproducible framework f
 ---
 
 ## 📂 Repository Structure
+
+```text
 ├── input/ # Example inputs
 ├── Dockerfile # Dockerfile for containerized execution
 ├── README.md # Project documentation
@@ -47,6 +49,7 @@ It is designed for researchers who want a ready-to-use, reproducible framework f
         ├── const.py # Definitions and paths for running the notebooks
         ├── mpra_qc_analysis.py # Main module for MPRA QC analysis
         └── plot_lib.py # Library of plotting functions
+````
 
 ---
 
