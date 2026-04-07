@@ -83,11 +83,11 @@ if "mprasnakeflow" in config:
             "associations_before_minimum_observations",
             f"results/{config['project']}/preprocessing/mprasnakeflow/association/associations_before_minimum_observations.csv.gz",
         )
-    if "activity" in config["mprasnakeflow"]:
+    if "experiment" in config["mprasnakeflow"]:
         activity_files = add_or_replace_file_in_df(
             activity_files,
             "activity_df",
-            f"results/{config['project']}/analysis/mprasnakeflow/activity/activity_df.csv.gz",
+            f"results/{config['project']}/preprocessing/mprasnakeflow/activity/activity_df.csv.gz",
         )
 
 ################################

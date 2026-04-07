@@ -1,4 +1,5 @@
 import math
+from typing import Any, Iterable
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -406,7 +407,7 @@ def ratio_correlation_between_replicates_plot(activity_by_rep: pd.DataFrame, sho
     return fig, ax
 
 
-def ratio_correlation_with_controls_plot(activity_by_rep, neg, pos):
+def ratio_correlation_with_controls_plot(activity_by_rep: pd.DataFrame, neg: Iterable[Any], pos: Iterable[Any]) -> tuple[Figure, Axes]:
 
     activity_by_rep = activity_by_rep.replace([np.inf, -np.inf], np.nan)
 
@@ -586,7 +587,7 @@ def rna_dna_ratio_hexbin_plot(act_df, DNA_counts, RNA_counts) -> tuple[Figure, A
     return fig, ax
 
 
-def control_boxplots_plot(act_df, neg, pos, test):
+def control_boxplots_plot(act_df: pd.DataFrame, neg: Iterable[Any], pos: Iterable[Any], test: Iterable[Any]) -> tuple[Figure, Axes]:
 
     annot_df = act_df.copy()
     annot_df["control_annotation"] = None
@@ -603,7 +604,7 @@ def control_boxplots_plot(act_df, neg, pos, test):
     sns.boxplot(
         data=annot_df,
         y="control_annotation",
-        x="activity_statistic",
+        x="RNA_DNA_ratio_log_rep_comb",
         hue="control_annotation",
         palette={"PosCtrl": pos_color, "NegCtrl": neg_color, "Test": test_color},
         showfliers=False,
@@ -796,7 +797,7 @@ def gc_content_bias_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
     boxplot_groups = boxplot_df.groupby("gc_bin_center")["DNA_rep_comb"].apply(list)
     gc_summary = boxplot_df.groupby("GC_Content_label", observed=False)["DNA_rep_comb"].agg(["count", "median"]).reset_index()
     # Filter gc_summary to match only bins with data
-    #gc_summary = gc_summary[gc_summary["count"] > 0]
+    gc_summary = gc_summary[gc_summary["count"] > 0]
     # Filter widths to match only bins with data
     bin_width_dict = {(i.left + i.right) / 2: (i.right - i.left) / 2 for i in bin_intervals}
     widths_filtered = [bin_width_dict.get(pos, 0.5) for pos in boxplot_groups.index]

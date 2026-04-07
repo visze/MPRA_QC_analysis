@@ -9,10 +9,13 @@ rule preprocessing_mprasnakeflow_experiment_bcalm_elements:
         bcalm_result="results/{project}/preprocessing/mprasnakeflow/activity/bcalm/elements.tsv.gz",
         output_volcano_plot="results/{project}/preprocessing/mprasnakeflow/activity/bcalm/volcano_plot.png",
         output_density_plot="results/{project}/preprocessing/mprasnakeflow/activity/bcalm/density_plot.png",
+        output_mean_variance_relation="results/{project}/preprocessing/mprasnakeflow/activity/bcalm/mean_variance_relation.png",
     log:
         "logs/preprocessing/mprasnakeflow/experiment/bcalm_elements.{project}.log",
     conda:
         getCondaEnv("bcalm.yml")
+    container:
+        "docker://visze/bcalm:0.100.0"
     params:
         test_label=config.get("mprasnakeflow", {})
         .get("experiment", {})
@@ -35,7 +38,8 @@ rule preprocessing_mprasnakeflow_experiment_bcalm_elements:
         Rscript {input.script} --counts {input.reporter_experiment_barcode} \
         --labels {input.labels} --test-label {params.test_label} --control-label {params.control_label} \
         --percentile {params.percentile} --normalize {params.normalize} \
-        --output {output.bcalm_result} --output-volcano-plot {output.output_volcano_plot} --output-density-plot {output.output_density_plot} > {log} 2>&1
+        --output-mean-variance-relation {output.output_mean_variance_relation} --output-volcano-plot {output.output_volcano_plot} --output-density-plot {output.output_density_plot} \
+        --output {output.bcalm_result} > {log} 2>&1
         """
 
 
@@ -52,9 +56,19 @@ rule preprocessing_mprasnakeflow_experiment_activity_df:
         "logs/preprocessing/mprasnakeflow/experiment/activity_df.{project}.log",
     conda:
         getCondaEnv("mpralib.yml")
+    container:
+        "docker://quay.io/biocontainers/mpralib:0.10.3--pyhdfd78af_0"
+    params:
+        fdr=(
+            1.0
+            - config.get("mprasnakeflow", {})
+            .get("experiment", {})
+            .get("percentile", 0.95)
+        )
+        * 2,
     shell:
         """
-        python {input.script} --counts {input.reporter_experiment_barcode} \
-        --activity {input.bcalm_result} \
-        --output {output.activity_df} > {log} 2>&1
+        python {input.script} \
+        --reporter-experiment-barcode {input.reporter_experiment_barcode} --bcalm-statistics {input.bcalm_result} \
+        --output {output.activity_df} --fdr {params.fdr} > {log} 2>&1
         """
