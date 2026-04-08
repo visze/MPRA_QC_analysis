@@ -36,7 +36,7 @@ min_version("8.24.1")
 
 
 ##### report workflow #####
-report: "report/workflow.rst"
+report: "reports/workflow.rst"
 
 
 ##### General wildcard constraints #####

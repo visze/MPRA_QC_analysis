@@ -12,7 +12,7 @@ parser$add_argument("--percentile",
 parser$add_argument("--output", type = "character", required = TRUE, help = "Path to the output file")
 parser$add_argument("--output-volcano-plot", type = "character", required = FALSE, help = "Path to store the volcano plot")
 parser$add_argument("--output-density-plot", type = "character", required = FALSE, help = "Path to store the density plot")
-parser$add_argument("--output-mean-variance-relation", type = "character", required = FALSE, help = "Path to store the mean-variance relation plot (png)")
+parser$add_argument("--output-mean-variance-relation-plot", type = "character", required = FALSE, help = "Path to store the mean-variance relation plot (png)")
 parser$add_argument("--normalize", type = "logical", default = TRUE, help = "Whether to normalize the data (TRUE or FALSE)")
 
 args <- parser$parse_args()
@@ -49,8 +49,8 @@ bcs <- ncol(dna_elem) / nr_reps
 block_vector <- rep(1:nr_reps, each = bcs)
 
 cat("Fit elements...\n")
-if (!is.null(args$output_mean_variance_relation)) {
-  png(filename = args$output_mean_variance_relation, width = 8, height = 6, units = "in", res = 300)
+if (!is.null(args$output_mean_variance_relation_plot)) {
+  png(filename = args$output_mean_variance_relation_plot, width = 8, height = 6, units = "in", res = 300)
   fit_elem <- fit_elements(object = mpraset, normalize = args$normalize, block = block_vector, plot = TRUE)
   dev.off()
 } else {

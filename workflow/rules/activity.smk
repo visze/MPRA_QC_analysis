@@ -14,7 +14,62 @@ rule activity_main:
         expand(
             "results/{{project}}/activity/{plot}.{file_type}",
             plot=get_activity_main_plots(activity_files),
-            file_type=["pdf", "eps", "png", "svg"],
+            file_type=["pdf", "eps", "svg"],
+        ),
+        report(
+            "results/{project}/activity/Activity_distribution.png",
+            caption=getReport("activity/activity.rst"),
+            category="{project}",
+            subcategory="Activity",
+            labels={
+                "analysis": "Activity",
+                "type": "Activity",
+                "figure": "Activity Distribution",
+            },
+        ),
+        report(
+            "results/{project}/activity/P_value_distribution.png",
+            caption=getReport("activity/activity.rst"),
+            category="{project}",
+            subcategory="Activity",
+            labels={
+                "analysis": "Activity",
+                "type": "Activity",
+                "figure": "P-Value Distribution",
+            },
+        ),
+        report(
+            "results/{project}/activity/Cumulative_RNA_reads.png",
+            caption=getReport("activity/activity.rst"),
+            category="{project}",
+            subcategory="Activity",
+            labels={
+                "analysis": "Activity",
+                "type": "Activity",
+                "figure": "Cumulative RNA Reads",
+            },
+        ),
+        report(
+            "results/{project}/activity/RNA_vs_DNA_w_bar.png",
+            caption=getReport("activity/activity.rst"),
+            category="{project}",
+            subcategory="Activity",
+            labels={
+                "analysis": "Activity",
+                "type": "Activity",
+                "figure": "RNA vs DNA w/ Bar",
+            },
+        ),
+        report(
+            "results/{project}/activity/Activity_statistic_vs_count_ratio.png",
+            caption=getReport("activity/activity.rst"),
+            category="{project}",
+            subcategory="Activity",
+            labels={
+                "analysis": "Activity",
+                "type": "Activity",
+                "figure": "Activity Statistic vs Count Ratio",
+            },
         ),
     log:
         "logs/activity/main.{project}.log",

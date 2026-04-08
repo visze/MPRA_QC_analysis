@@ -3,6 +3,7 @@
 ################################
 
 SCRIPTS_DIR = "../scripts"
+REPORTS_DIR = "../reports"
 ENVS_DIR = "../envs"
 
 
@@ -12,6 +13,10 @@ def getWorkflowFile(dir_name, name):
 
 def getScript(name):
     return getWorkflowFile(SCRIPTS_DIR, name)
+
+
+def getReport(name):
+    return getWorkflowFile(REPORTS_DIR, name)
 
 
 def getCondaEnv(name):
@@ -84,11 +89,18 @@ if "mprasnakeflow" in config:
             f"results/{config['project']}/preprocessing/mprasnakeflow/association/associations_before_minimum_observations.csv.gz",
         )
     if "experiment" in config["mprasnakeflow"]:
-        activity_files = add_or_replace_file_in_df(
-            activity_files,
-            "activity_df",
-            f"results/{config['project']}/preprocessing/mprasnakeflow/activity/activity_df.csv.gz",
-        )
+        if "labels" in config["mprasnakeflow"]["experiment"]:
+            activity_files = add_or_replace_file_in_df(
+                activity_files,
+                "activity_df",
+                f"results/{config['project']}/preprocessing/mprasnakeflow/activity/activity_df.csv.gz",
+            )
+        if "comparative_map" in config["mprasnakeflow"]["experiment"]:
+            activity_files = add_or_replace_file_in_df(
+                activity_files,
+                "comparative_df",
+                f"results/{config['project']}/preprocessing/mprasnakeflow/activity/comparative_df.csv.gz",
+            )
 
 ################################
 #### HELPERS AND EXCEPTIONS ####

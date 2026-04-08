@@ -58,22 +58,39 @@ properties:
           control_label:
             description: Name of the control group in the labels file (e.g. control).
             type: string
-          percentile:
-            description: Percentile to use for filtering (default 0.95).
-            type: number
-            default: 0.95
           normalize:
             description: Whether to normalize the activity values (default true).
             type: boolean
             default: true
+          fdr:
+            description: False discovery rate to use for filtering (default 0.1).
+            type: number
+            default: 0.1
+          comparative_map:
+            description: Path to the file containing the comparative map to contrast two conditions (like variants).
+            type: string
         additionalProperties: false
-        required:
-          - reporter_experiment_barcode
-          - labels
-          - test_label
-          - control_label
-          - percentile
-          - normalize
+        anyOf:
+          - required:
+              - reporter_experiment_barcode
+              - labels
+              - test_label
+              - control_label
+              - fdr
+              - normalize
+          - required:
+              - reporter_experiment_barcode
+              - normalize
+              - fdr
+              - comparative_map
+          - required:
+              - reporter_experiment_barcode
+              - labels
+              - test_label
+              - control_label
+              - fdr
+              - normalize
+              - comparative_map
     additionalProperties: false
     anyOf:
       - required:

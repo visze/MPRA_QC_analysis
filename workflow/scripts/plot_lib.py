@@ -175,7 +175,7 @@ def PCR_bias_GC_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Axes]:
 
     gc_summary = boxplot_df.groupby("gc_bin", observed=False)["association_count"].agg(["count", "median"]).reset_index()
 
-    #gc_summary = gc_summary[gc_summary["count"] > 0]
+    gc_summary = gc_summary[gc_summary["count"] > 0]
     bin_width_dict = {(i.left + i.right) / 2: (i.right - i.left) / 2 for i in bin_intervals}
     widths_filtered = [bin_width_dict.get(pos, 0.5) for pos in boxplot_groups.index]
 
