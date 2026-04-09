@@ -37,11 +37,20 @@ properties:
             description: Fraction threshold for filtering associations (default 0.75).
             type: number
             default: 0.75
+          min_support:
+            description: Minimum support of observed barcodes per oligo for filtering associations (default 3).
+            type: integer
+            default: 3
+          bc_length:
+            description: Length of the barcodes.
+            type: integer
         additionalProperties: false
         required:
           - barcodes_incl_other
           - assignment_barcodes_with_ambiguous
           - fraction
+          - min_support
+          - bc_length
       experiment:
         description: Paths to the files from mprasnakeflow to use them for preprocessing to input files for the activity step.
         type: object

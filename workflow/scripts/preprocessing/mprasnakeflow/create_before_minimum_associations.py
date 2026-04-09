@@ -6,7 +6,7 @@ import click
 @click.option("--input", type=click.Path(exists=True), required=True, help="Input CSV file path")
 @click.option("--output", type=click.Path(), required=True, help="Output CSV file path")
 @click.option("--threshold", type=float, default=0.75, help="Fraction threshold (default: 0.75)")
-def process_associations(input, output, threshold):
+def process_associations(input: str, output: str, threshold: float) -> None:
     """Process barcode-cCRE associations and filter by threshold."""
     
     # Read input file

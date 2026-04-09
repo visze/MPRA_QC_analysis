@@ -88,6 +88,11 @@ if "mprasnakeflow" in config:
             "associations_before_minimum_observations",
             f"results/{config['project']}/preprocessing/mprasnakeflow/association/associations_before_minimum_observations.csv.gz",
         )
+        association_files = add_or_replace_file_in_df(
+            association_files,
+            "associations_downsampling_path",
+            f"results/{config['project']}/preprocessing/mprasnakeflow/association/downsample",
+        )
     if "experiment" in config["mprasnakeflow"]:
         if "labels" in config["mprasnakeflow"]["experiment"]:
             activity_files = add_or_replace_file_in_df(
