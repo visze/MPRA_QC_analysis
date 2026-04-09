@@ -250,7 +250,7 @@ def PCR_bias_G_stretches_plot(final_counts_df: pd.DataFrame) -> tuple[Figure, Ax
 def downsampling_Retained_cCREs_plot(oligo_coverage_df, output_path) -> tuple[Figure, Axes]:
     x_arr = oligo_coverage_df["ds"].to_numpy(dtype=float)
     y_arr = oligo_coverage_df["oligo_coverage"].to_numpy(dtype=float)
-    params_hill, _ = curve_fit(_hill_model, x_arr, y_arr, bounds=(0, np.inf))
+    params_hill, _ = curve_fit(_hill_model, x_arr, y_arr, bounds=(0, np.inf), maxfev=10000, p0=[1, 1, 1])
 
     x_fit = np.linspace(0.1, 3, 100)
     y_hill_fit = _hill_model(x_fit, *params_hill)
