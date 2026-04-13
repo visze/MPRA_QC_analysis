@@ -94,6 +94,11 @@ if "mprasnakeflow" in config:
             f"results/{config['project']}/preprocessing/mprasnakeflow/association/downsample",
         )
     if "experiment" in config["mprasnakeflow"]:
+        activity_files = add_or_replace_file_in_df(
+            activity_files,
+            "activity_per_rep",
+            f"results/{config['project']}/preprocessing/mprasnakeflow/activity/activity_per_rep.csv.gz",
+        )
         if "labels" in config["mprasnakeflow"]["experiment"]:
             activity_files = add_or_replace_file_in_df(
                 activity_files,

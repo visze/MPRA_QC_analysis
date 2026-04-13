@@ -97,6 +97,28 @@ rule preprocessing_mprasnakeflow_experiment_activity_df:
         """
 
 
+rule preprocessing_mprasnakeflow_experiment_activity_per_rep:
+    input:
+        reporter_experiment_barcode=config.get("mprasnakeflow", {})
+        .get("experiment", {})
+        .get("reporter_experiment_barcode", []),
+        script=getScript("preprocessing/mprasnakeflow/create_activity_per_rep.py"),
+    output:
+        activity_per_rep_df="results/{project}/preprocessing/mprasnakeflow/activity/activity_per_rep.csv.gz",
+    log:
+        "logs/preprocessing/mprasnakeflow/experiment/activity_per_rep.{project}.log",
+    conda:
+        getCondaEnv("mpralib.yml")
+    container:
+        "docker://quay.io/biocontainers/mpralib:0.10.3--pyhdfd78af_0"
+    shell:
+        """
+        python {input.script} \
+        --reporter-experiment-barcode {input.reporter_experiment_barcode} \
+        --output {output.activity_per_rep_df} > {log} 2>&1
+        """
+
+
 rule preprocessing_mprasnakeflow_experiment_bcalm_comparative:
     input:
         reporter_experiment_barcode=config.get("mprasnakeflow", {})

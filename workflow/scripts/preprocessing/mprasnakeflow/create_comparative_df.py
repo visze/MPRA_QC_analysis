@@ -1,6 +1,5 @@
 import click
 import pandas as pd
-from mpralib.mpradata import MPRABarcodeData
 
 @click.command()
 @click.option("--bcalm-statistics", "bcalm_statistics_file", type=click.Path(exists=True), required=True, help="Input file with bcalm statistics")
