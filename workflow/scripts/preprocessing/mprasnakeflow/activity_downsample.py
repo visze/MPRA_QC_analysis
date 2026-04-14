@@ -44,7 +44,6 @@ def create_output_file(output_folder: str, fraction: float, mpradata: MPRABarcod
     for i, replicate in enumerate(mpradata.obs_names):
         output[f"dna_count_{replicate}"] = dna_counts[i]
         output[f"rna_count_{replicate}"] = rna_counts[i]
-    output = output.fillna(0)
     output = output[(output.iloc[:, 2:] != 0).any(axis=1)]
     output.replace(0, "", inplace=True)
     output.to_csv(output_path, sep="\t", index=False)
