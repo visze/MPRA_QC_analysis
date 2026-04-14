@@ -8,7 +8,7 @@ import click
 @click.option("--threshold", type=float, default=0.75, help="Fraction threshold (default: 0.75)")
 def process_associations(input: str, output: str, threshold: float) -> None:
     """Process barcode-cCRE associations and filter by threshold."""
-    
+
     # Read input file
     df = pd.read_csv(input)
     click.echo(f"Read {len(df)} rows from {input}")

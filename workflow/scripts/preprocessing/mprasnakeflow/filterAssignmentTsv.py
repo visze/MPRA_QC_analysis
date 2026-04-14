@@ -41,7 +41,7 @@ def filter_and_report_assignments(
         return
     reported = False
     maxcount = 0
-    insert= 0
+    insert = 0
     for insert, count in cassignments.items():
         if count > maxcount:
             maxcount = count

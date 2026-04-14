@@ -110,6 +110,11 @@ if "mprasnakeflow" in config:
                 "activity_df",
                 f"results/{config['project']}/preprocessing/mprasnakeflow/activity/activity_df.csv.gz",
             )
+            activity_files = add_or_replace_file_in_df(
+                activity_files,
+                "downsampling_activity_path",
+                f"results/{config['project']}/preprocessing/mprasnakeflow/activity/downsampling_activity",
+            )
         if "comparative_map" in config["mprasnakeflow"]["experiment"]:
             activity_files = add_or_replace_file_in_df(
                 activity_files,

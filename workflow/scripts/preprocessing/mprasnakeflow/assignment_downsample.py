@@ -60,5 +60,6 @@ def assignment_downsample(input: str, output_folder: str, seed: int) -> None:
         output_path = output_dir / f"barcodes_incl_other.{fraction:.1f}.tsv.gz"
         click.echo(f"Saved {row_counts[fraction]} rows to {output_path}")
 
+
 if __name__ == "__main__":
     assignment_downsample()
