@@ -99,6 +99,11 @@ if "mprasnakeflow" in config:
             "activity_per_rep",
             f"results/{config['project']}/preprocessing/mprasnakeflow/activity/activity_per_rep.csv.gz",
         )
+        activity_files = add_or_replace_file_in_df(
+            activity_files,
+            "downsampling_ratio_path",
+            f"results/{config['project']}/preprocessing/mprasnakeflow/activity/downsampling_ratio",
+        )
         if "labels" in config["mprasnakeflow"]["experiment"]:
             activity_files = add_or_replace_file_in_df(
                 activity_files,
@@ -110,6 +115,16 @@ if "mprasnakeflow" in config:
                 activity_files,
                 "comparative_df",
                 f"results/{config['project']}/preprocessing/mprasnakeflow/activity/comparative_df.csv.gz",
+            )
+            activity_files = add_or_replace_file_in_df(
+                activity_files,
+                "allelic_pairs_df",
+                f"results/{config['project']}/preprocessing/mprasnakeflow/activity/allelic_pairs_df.csv.gz",
+            )
+            activity_files = add_or_replace_file_in_df(
+                activity_files,
+                "allelic_pairs_replicates_df",
+                f"results/{config['project']}/preprocessing/mprasnakeflow/activity/allelic_pairs_replicates_df.csv.gz",
             )
 
 ################################
@@ -266,7 +281,7 @@ def get_activity_reproducibility_by_sequencing_depth_plots(
 ) -> list:
     if (
         not activity_df.empty
-        and "downsampling_activity_path" in activity_df["file"].values
+        and "downsampling_ratio_path" in activity_df["file"].values
     ):
         return [
             "BC_retention_by_DNA_RNA_sequencing_depth",

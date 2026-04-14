@@ -198,3 +198,106 @@ rule preprocessing_mprasnakeflow_experiment_comparative_df:
         --bcalm-statistics {input.bcalm_result} --comparative-map {input.comparative_map} \
         --output {output.comparative_df} --fdr {params.fdr} > {log} 2>&1
         """
+
+
+rule preprocessing_mprasnakeflow_experiment_allelic_pairs_df:
+    input:
+        reporter_experiment_barcode=config.get("mprasnakeflow", {})
+        .get("experiment", {})
+        .get("reporter_experiment_barcode", []),
+        comparative_map=config.get("mprasnakeflow", {})
+        .get("experiment", {})
+        .get("comparative_map", []),
+        script=getScript("preprocessing/mprasnakeflow/create_allelic_pairs_df.py"),
+    output:
+        allelic_pairs_df="results/{project}/preprocessing/mprasnakeflow/activity/allelic_pairs_df.csv.gz",
+    log:
+        "logs/preprocessing/mprasnakeflow/experiment/allelic_pairs_df.{project}.log",
+    conda:
+        getCondaEnv("mpralib.yml")
+    container:
+        "docker://quay.io/biocontainers/mpralib:0.10.3--pyhdfd78af_0"
+    shell:
+        """
+        python {input.script} \
+        --reporter-experiment-barcode {input.reporter_experiment_barcode} --comparative-map {input.comparative_map} \
+        --output {output.allelic_pairs_df} > {log} 2>&1
+        """
+
+
+rule preprocessing_mprasnakeflow_experiment_allelic_pairs_replicates_df:
+    input:
+        reporter_experiment_barcode=config.get("mprasnakeflow", {})
+        .get("experiment", {})
+        .get("reporter_experiment_barcode", []),
+        comparative_map=config.get("mprasnakeflow", {})
+        .get("experiment", {})
+        .get("comparative_map", []),
+        script=getScript(
+            "preprocessing/mprasnakeflow/create_allelic_pairs_replicates_df.py"
+        ),
+    output:
+        allelic_pairs_replicates_df="results/{project}/preprocessing/mprasnakeflow/activity/allelic_pairs_replicates_df.csv.gz",
+    log:
+        "logs/preprocessing/mprasnakeflow/experiment/allelic_pairs_replicates_df.{project}.log",
+    conda:
+        getCondaEnv("mpralib.yml")
+    container:
+        "docker://quay.io/biocontainers/mpralib:0.10.3--pyhdfd78af_0"
+    shell:
+        """
+        python {input.script} \
+        --reporter-experiment-barcode {input.reporter_experiment_barcode} --comparative-map {input.comparative_map} \
+        --output {output.allelic_pairs_replicates_df} > {log} 2>&1
+        """
+
+
+rule preprocessing_mprasnakeflow_experiment_downsampling_ratio_df:
+    input:
+        reporter_experiment_barcode=config.get("mprasnakeflow", {})
+        .get("experiment", {})
+        .get("reporter_experiment_barcode", []),
+        script=getScript("preprocessing/mprasnakeflow/create_downsampling_ratio_df.py"),
+    output:
+        temp(
+            expand(
+                "results/{{project}}/preprocessing/mprasnakeflow/activity/downsample_tmp/ratio_df_{fraction:.1f}.csv.gz",
+                fraction=[0.1 * i for i in range(1, 11)],
+            )
+        ),
+    log:
+        "logs/preprocessing/mprasnakeflow/experiment/downsampling_ratio_df.{project}.log",
+    conda:
+        getCondaEnv("mpralib.yml")
+    container:
+        "docker://quay.io/biocontainers/mpralib:0.10.3--pyhdfd78af_0"
+    shell:
+        """
+        python {input.script} --reporter-experiment-barcode {input.reporter_experiment_barcode} --output-folder $(dirname {output[0]}) > {log} 2>&1
+        """
+
+
+rule preprocessing_mprasnakeflow_experiment_downsampling_ratio_copy:
+    """
+Copy to the final downsample folder. This is necessary to avoid issues with the downstream rules that expect the files to be in a specific location. The downsample folder is also added to the activity_files dataframe for the downstream rules.
+"""
+    input:
+        final=expand(
+            "results/{{project}}/preprocessing/mprasnakeflow/activity/downsample_tmp/ratio_df_{fraction:.1f}.csv.gz",
+            fraction=[0.1 * i for i in range(1, 11)],
+        ),
+    output:
+        output_path=directory(
+            "results/{project}/preprocessing/mprasnakeflow/activity/downsampling_ratio/"
+        ),
+    log:
+        "logs/preprocessing/mprasnakeflow/experiment/downsampling_ratio_copy.{project}.log",
+    conda:
+        getCondaEnv("default.yml")
+    shell:
+        """
+        mkdir -p {output.output_path}
+        for i in {input.final}; do
+            cp $i {output.output_path}/$(basename $i);
+        done 2> {log}
+        """

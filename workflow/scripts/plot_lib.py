@@ -995,8 +995,8 @@ def bc_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_bc: pd.DataFr
     x_arr_RNA = reps_sampling_df_bc[reps_sampling_df_bc["measurement"] == "RNA"]["Sampling_parameter"].to_numpy(dtype=float)
     y_arr_RNA = reps_sampling_df_bc[reps_sampling_df_bc["measurement"] == "RNA"]["fraction"].to_numpy(dtype=float)
 
-    params_hill_DNA, _ = curve_fit(_hill_model, x_arr_DNA, y_arr_DNA, bounds=(0, np.inf))
-    params_hill_RNA, _ = curve_fit(_hill_model, x_arr_RNA, y_arr_RNA, bounds=(0, np.inf))
+    params_hill_DNA, _ = curve_fit(_hill_model, x_arr_DNA, y_arr_DNA, bounds=(0, np.inf), maxfev=10000, p0=[1, 1, 1])
+    params_hill_RNA, _ = curve_fit(_hill_model, x_arr_RNA, y_arr_RNA, bounds=(0, np.inf), maxfev=10000, p0=[1, 1, 1])
 
     # create datapoints for plotting
     x_fit = np.linspace(0.1, 3, 100)
@@ -1089,9 +1089,8 @@ def ccre_retention_by_dna_rna_sequencing_depth_plot(reps_sampling_df_ccre: pd.Da
     )
     y_arr_RNA = reps_sampling_df_ccre[reps_sampling_df_ccre["measurement"] == "RNA"]["fraction"].to_numpy(dtype=float)
 
-    params_hill_DNA, _ = curve_fit(_hill_model, x_arr_DNA, y_arr_DNA, bounds=(0, np.inf))
-    params_hill_RNA, _ = curve_fit(_hill_model, x_arr_RNA, y_arr_RNA, bounds=(0, np.inf))
-
+    params_hill_DNA, _ = curve_fit(_hill_model, x_arr_DNA, y_arr_DNA, bounds=(0, np.inf), maxfev=10000, p0=[1, 1, 1])
+    params_hill_RNA, _ = curve_fit(_hill_model, x_arr_RNA, y_arr_RNA, bounds=(0, np.inf), maxfev=10000, p0=[1, 1, 1])
     # create datapoints for plotting
     x_fit = np.linspace(0.1, 3, 100)
     y_hill_fit_DNA = _hill_model(x_fit, *params_hill_DNA)
