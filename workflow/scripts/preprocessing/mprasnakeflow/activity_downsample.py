@@ -2,8 +2,7 @@ import click
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from mpralib.mpradata import MPRABarcodeData, MPRAOligoData, CountSampling
-from mpralib.utils.io import export_barcode_file
+from mpralib.mpradata import MPRABarcodeData, CountSampling
 
 
 FRACTIONS = [i / 10 for i in range(1, 10)]
@@ -37,7 +36,18 @@ def activity_downsample(reporter_experiment_barcode_file: str, output_folder: st
 
 def create_output_file(output_folder: str, fraction: float, mpradata: MPRABarcodeData) -> None:
     output_path = Path(output_folder) / f"reporter_barcode_{fraction:.1f}.tsv.gz"
-    export_barcode_file(mpradata, str(output_path))
+
+    output = pd.DataFrame({"barcode": mpradata.var_names, "oligo_name": mpradata.oligos})
+
+    dna_counts = mpradata.dna_counts
+    rna_counts = mpradata.rna_counts
+    for i, replicate in enumerate(mpradata.obs_names):
+        output[f"dna_count_{replicate}"] = dna_counts[i]
+        output[f"rna_count_{replicate}"] = rna_counts[i]
+    output = output.fillna(0)
+    output = output[(output.iloc[:, 2:] != 0).any(axis=1)]
+    output.replace(0, "", inplace=True)
+    output.to_csv(output_path, sep="\t", index=False)
     click.echo(f"Saved reporter barcode for fraction {fraction:.1f} to {output_path}")
 
 

@@ -767,10 +767,9 @@ def replicability_by_activity_plot(
     min_active = df.loc[df["mask"], "x"].min()
     max_active = df.loc[df["mask"], "x"].max()
     bins_non_active = np.linspace(
-        np.floor(min_non_active), np.ceil(max_non_active), int((np.ceil(max_non_active)) - np.floor(min_non_active)+1)
+        np.floor(min_non_active), np.ceil(max_non_active), int((np.ceil(max_non_active)) - np.floor(min_non_active) + 1)
     )
-    bins_active = np.linspace(np.floor(min_active), np.ceil(max_active), int((np.ceil(max_active)) - np.floor(min_active)+1)
-                              )
+    bins_active = np.linspace(np.floor(min_active), np.ceil(max_active), int((np.ceil(max_active)) - np.floor(min_active) + 1))
 
     n_min = 30  # or whatever you decide
 
