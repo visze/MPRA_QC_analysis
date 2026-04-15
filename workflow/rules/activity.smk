@@ -18,7 +18,7 @@ rule activity_main:
         ),
         report(
             "results/{project}/activity/Activity_distribution.png",
-            caption=getReport("activity/activity.rst"),
+            caption=getReport("activity/Activity_distribution.rst"),
             category="{project}",
             subcategory="Activity",
             labels={
@@ -29,7 +29,7 @@ rule activity_main:
         ),
         report(
             "results/{project}/activity/P_value_distribution.png",
-            caption=getReport("activity/activity.rst"),
+            caption=getReport("activity/P_value_distribution.rst"),
             category="{project}",
             subcategory="Activity",
             labels={
@@ -40,7 +40,7 @@ rule activity_main:
         ),
         report(
             "results/{project}/activity/Cumulative_RNA_reads.png",
-            caption=getReport("activity/activity.rst"),
+            caption=getReport("activity/Cumulative_RNA_reads.rst"),
             category="{project}",
             subcategory="Activity",
             labels={
@@ -51,7 +51,7 @@ rule activity_main:
         ),
         report(
             "results/{project}/activity/RNA_vs_DNA_w_bar.png",
-            caption=getReport("activity/activity.rst"),
+            caption=getReport("activity/RNA_vs_DNA_w_bar.rst"),
             category="{project}",
             subcategory="Activity",
             labels={
@@ -62,7 +62,7 @@ rule activity_main:
         ),
         report(
             "results/{project}/activity/Activity_statistic_vs_count_ratio.png",
-            caption=getReport("activity/activity.rst"),
+            caption=getReport("activity/Activity_statistic_vs_count_ratio.rst"),
             category="{project}",
             subcategory="Activity",
             labels={
@@ -104,7 +104,18 @@ rule activity_control_boxplots:
         expand(
             "results/{{project}}/activity/{plot}.{file_type}",
             plot=get_activity_control_boxplots_plots(activity_files),
-            file_type=["pdf", "eps", "png", "svg"],
+            file_type=["pdf", "eps", "svg"],
+        ),
+        report(
+            "results/{project}/activity/Activity_of_controls.png",
+            caption=getReport("activity/Activity_of_controls.rst"),
+            category="{project}",
+            subcategory="Activity",
+            labels={
+                "analysis": "Activity",
+                "type": "Activity",
+                "figure": "Activity of Controls",
+            },
         ),
     log:
         "logs/activity/control_boxplots.{project}.log",
@@ -203,9 +214,7 @@ rule activity_ratio_correlation_between_replicates:
     output:
         expand(
             "results/{{project}}/activity/{plot}.{file_type}",
-            plot=get_activity_ratio_correlation_between_replicates_plots(
-                activity_files
-            ),
+            plot=get_activity_ratio_correlation_between_replicates_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
     log:
@@ -300,9 +309,7 @@ rule activity_reproducibility_by_sequencing_depth:
     output:
         expand(
             "results/{{project}}/activity/{plot}.{file_type}",
-            plot=get_activity_reproducibility_by_sequencing_depth_plots(
-                activity_files
-            ),
+            plot=get_activity_reproducibility_by_sequencing_depth_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
     log:
@@ -452,9 +459,7 @@ rule activity_prediction_vs_differential_activity:
     output:
         expand(
             "results/{{project}}/activity/{plot}.{file_type}",
-            plot=get_activity_prediction_vs_differential_activity_plots(
-                activity_files
-            ),
+            plot=get_activity_prediction_vs_differential_activity_plots(activity_files),
             file_type=["pdf", "eps", "png", "svg"],
         ),
     log:

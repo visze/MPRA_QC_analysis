@@ -1,8 +1,6 @@
 rule preprocessing_mprasnakeflow_assignment_associations_before_promiscuity:
     input:
-        barcodes_incl_other=config.get("mprasnakeflow", {})
-        .get("assignment", {})
-        .get("barcodes_incl_other", []),
+        barcodes_incl_other=config.get("mprasnakeflow", {}).get("assignment", {}).get("barcodes_incl_other", []),
     output:
         "results/{project}/preprocessing/mprasnakeflow/association/associations_before_promiscuity.csv.gz",
     log:
@@ -22,9 +20,7 @@ rule preprocessing_mprasnakeflow_assignment_associations_before_promiscuity:
 rule preprocessing_mprasnakeflow_assignment_associations_before_minimum_observations:
     input:
         association_before_promiscuity="results/{project}/preprocessing/mprasnakeflow/association/associations_before_promiscuity.csv.gz",
-        script=getScript(
-            "preprocessing/mprasnakeflow/create_before_minimum_associations.py"
-        ),
+        script=getScript("preprocessing/mprasnakeflow/create_before_minimum_associations.py"),
     output:
         "results/{project}/preprocessing/mprasnakeflow/association/associations_before_minimum_observations.csv.gz",
     log:
@@ -32,9 +28,7 @@ rule preprocessing_mprasnakeflow_assignment_associations_before_minimum_observat
     conda:
         getCondaEnv("default.yml")
     params:
-        threshold=config.get("mprasnakeflow", {})
-        .get("assignment", {})
-        .get("fraction", 0.75),
+        threshold=config.get("mprasnakeflow", {}).get("assignment", {}).get("fraction", 0.75),
     shell:
         """
         python {input.script} --input {input.association_before_promiscuity} --output {output} --threshold {params.threshold} > {log} 2>&1
@@ -43,9 +37,7 @@ rule preprocessing_mprasnakeflow_assignment_associations_before_minimum_observat
 
 rule preprocessing_mprasnakeflow_assignment_final_associations:
     input:
-        assignment=config.get("mprasnakeflow", {})
-        .get("assignment", {})
-        .get("assignment_barcodes_with_ambiguous", []),
+        assignment=config.get("mprasnakeflow", {}).get("assignment", {}).get("assignment_barcodes_with_ambiguous", []),
     output:
         "results/{project}/preprocessing/mprasnakeflow/association/final_associations.csv.gz",
     log:
@@ -63,9 +55,7 @@ rule preprocessing_mprasnakeflow_assignment_final_associations:
 
 rule preprocessing_mprasnakeflow_assignment_downsample:
     input:
-        assignment=config.get("mprasnakeflow", {})
-        .get("assignment", {})
-        .get("barcodes_incl_other", []),
+        assignment=config.get("mprasnakeflow", {}).get("assignment", {}).get("barcodes_incl_other", []),
         script=getScript("preprocessing/mprasnakeflow/assignment_downsample.py"),
     output:
         temp(
@@ -102,15 +92,9 @@ FIXME: Limitation is that oligos cannot have a name ambiguous or other.
     conda:
         getCondaEnv("default.yml")
     params:
-        min_support=config.get("mprasnakeflow", {})
-        .get("assignment", {})
-        .get("min_support", 3),
-        fraction=config.get("mprasnakeflow", {})
-        .get("assignment", {})
-        .get("fraction", 0.75),
-        bc_length=config.get("mprasnakeflow", {})
-        .get("assignment", {})
-        .get("bc_length", 15),
+        min_support=config.get("mprasnakeflow", {}).get("assignment", {}).get("min_support", 3),
+        fraction=config.get("mprasnakeflow", {}).get("assignment", {}).get("fraction", 0.75),
+        bc_length=config.get("mprasnakeflow", {}).get("assignment", {}).get("bc_length", 15),
     shell:
         """
         trap "cat {log.err}" ERR;
@@ -138,9 +122,7 @@ Copy to the final downsample folder. This is necessary to avoid issues with the 
             fraction=[0.1 * i for i in range(1, 11)],
         ),
     output:
-        output_path=directory(
-            "results/{project}/preprocessing/mprasnakeflow/association/downsample/"
-        ),
+        output_path=directory("results/{project}/preprocessing/mprasnakeflow/association/downsample/"),
     log:
         "logs/preprocessing/mprasnakeflow/assignment/downsample_copy.{project}.log",
     conda:

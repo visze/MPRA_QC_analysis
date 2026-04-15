@@ -47,21 +47,10 @@ rule preprocessing_mprasnakeflow_experiment_bcalm_elements:
     container:
         "docker://visze/bcalm:0.100.0"
     params:
-        test_label=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("test_label", ""),
-        control_label=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("control_label", ""),
-        percentile=1.0
-        - (config.get("mprasnakeflow", {}).get("experiment", {}).get("fdr", 0.1) / 2.0),
-        normalize=(
-            "TRUE"
-            if config.get("mprasnakeflow", {})
-            .get("experiment", {})
-            .get("normalize", True)
-            else "FALSE"
-        ),
+        test_label=config.get("mprasnakeflow", {}).get("experiment", {}).get("test_label", ""),
+        control_label=config.get("mprasnakeflow", {}).get("experiment", {}).get("control_label", ""),
+        percentile=1.0 - (config.get("mprasnakeflow", {}).get("experiment", {}).get("fdr", 0.1) / 2.0),
+        normalize=("TRUE" if config.get("mprasnakeflow", {}).get("experiment", {}).get("normalize", True) else "FALSE"),
     shell:
         """
         Rscript {input.script} --counts {input.reporter_experiment_barcode} \
@@ -124,9 +113,7 @@ rule preprocessing_mprasnakeflow_experiment_bcalm_comparative:
         reporter_experiment_barcode=config.get("mprasnakeflow", {})
         .get("experiment", {})
         .get("reporter_experiment_barcode", []),
-        comparative_map=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("comparative_map", []),
+        comparative_map=config.get("mprasnakeflow", {}).get("experiment", {}).get("comparative_map", []),
         script=getScript("preprocessing/mprasnakeflow/bcalm_comparative.R"),
     output:
         bcalm_result="results/{project}/preprocessing/mprasnakeflow/activity/bcalm/comparative.tsv.gz",
@@ -159,13 +146,7 @@ rule preprocessing_mprasnakeflow_experiment_bcalm_comparative:
     container:
         "docker://visze/bcalm:0.100.0"
     params:
-        normalize=(
-            "TRUE"
-            if config.get("mprasnakeflow", {})
-            .get("experiment", {})
-            .get("normalize", True)
-            else "FALSE"
-        ),
+        normalize=("TRUE" if config.get("mprasnakeflow", {}).get("experiment", {}).get("normalize", True) else "FALSE"),
     shell:
         """
         Rscript {input.script} --counts {input.reporter_experiment_barcode} \
@@ -177,9 +158,7 @@ rule preprocessing_mprasnakeflow_experiment_bcalm_comparative:
 
 rule preprocessing_mprasnakeflow_experiment_comparative_df:
     input:
-        comparative_map=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("comparative_map", []),
+        comparative_map=config.get("mprasnakeflow", {}).get("experiment", {}).get("comparative_map", []),
         bcalm_result="results/{project}/preprocessing/mprasnakeflow/activity/bcalm/comparative.tsv.gz",
         script=getScript("preprocessing/mprasnakeflow/create_comparative_df.py"),
     output:
@@ -205,9 +184,7 @@ rule preprocessing_mprasnakeflow_experiment_allelic_pairs_df:
         reporter_experiment_barcode=config.get("mprasnakeflow", {})
         .get("experiment", {})
         .get("reporter_experiment_barcode", []),
-        comparative_map=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("comparative_map", []),
+        comparative_map=config.get("mprasnakeflow", {}).get("experiment", {}).get("comparative_map", []),
         script=getScript("preprocessing/mprasnakeflow/create_allelic_pairs_df.py"),
     output:
         allelic_pairs_df="results/{project}/preprocessing/mprasnakeflow/activity/allelic_pairs_df.csv.gz",
@@ -230,12 +207,8 @@ rule preprocessing_mprasnakeflow_experiment_allelic_pairs_replicates_df:
         reporter_experiment_barcode=config.get("mprasnakeflow", {})
         .get("experiment", {})
         .get("reporter_experiment_barcode", []),
-        comparative_map=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("comparative_map", []),
-        script=getScript(
-            "preprocessing/mprasnakeflow/create_allelic_pairs_replicates_df.py"
-        ),
+        comparative_map=config.get("mprasnakeflow", {}).get("experiment", {}).get("comparative_map", []),
+        script=getScript("preprocessing/mprasnakeflow/create_allelic_pairs_replicates_df.py"),
     output:
         allelic_pairs_replicates_df="results/{project}/preprocessing/mprasnakeflow/activity/allelic_pairs_replicates_df.csv.gz",
     log:
@@ -282,9 +255,7 @@ rule preprocessing_mprasnakeflow_experiment_downsampling_ratio_df:
         reporter_experiment_barcode=lambda wc: (
             f"results/{wc.project}/preprocessing/mprasnakeflow/activity/downsample_tmp/reporter_barcode_{wc.fraction}.tsv.gz"
             if wc.fraction != "1.0"
-            else config.get("mprasnakeflow", {})
-            .get("experiment", {})
-            .get("reporter_experiment_barcode", [])
+            else config.get("mprasnakeflow", {}).get("experiment", {}).get("reporter_experiment_barcode", [])
         ),
         script=getScript("preprocessing/mprasnakeflow/create_downsampling_ratio_df.py"),
     output:
@@ -311,9 +282,7 @@ Copy to the final downsample folder. This is necessary to avoid issues with the 
             fraction=[0.1 * i for i in range(1, 11)],
         ),
     output:
-        output_path=directory(
-            "results/{project}/preprocessing/mprasnakeflow/activity/downsampling_ratio/"
-        ),
+        output_path=directory("results/{project}/preprocessing/mprasnakeflow/activity/downsampling_ratio/"),
     log:
         "logs/preprocessing/mprasnakeflow/experiment/downsampling_ratio_copy.{project}.log",
     conda:
@@ -341,21 +310,10 @@ rule preprocessing_mprasnakeflow_experiment_downsampling_bcalm:
     container:
         "docker://visze/bcalm:0.100.0"
     params:
-        test_label=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("test_label", ""),
-        control_label=config.get("mprasnakeflow", {})
-        .get("experiment", {})
-        .get("control_label", ""),
-        percentile=1.0
-        - (config.get("mprasnakeflow", {}).get("experiment", {}).get("fdr", 0.1) / 2.0),
-        normalize=(
-            "TRUE"
-            if config.get("mprasnakeflow", {})
-            .get("experiment", {})
-            .get("normalize", True)
-            else "FALSE"
-        ),
+        test_label=config.get("mprasnakeflow", {}).get("experiment", {}).get("test_label", ""),
+        control_label=config.get("mprasnakeflow", {}).get("experiment", {}).get("control_label", ""),
+        percentile=1.0 - (config.get("mprasnakeflow", {}).get("experiment", {}).get("fdr", 0.1) / 2.0),
+        normalize=("TRUE" if config.get("mprasnakeflow", {}).get("experiment", {}).get("normalize", True) else "FALSE"),
     shell:
         """
         Rscript {input.script} --counts {input.reporter_experiment_barcode} \
@@ -370,18 +328,14 @@ rule preprocessing_mprasnakeflow_experiment_downsample_activity_df:
         reporter_experiment_barcode=lambda wc: (
             f"results/{wc.project}/preprocessing/mprasnakeflow/activity/downsample_tmp/reporter_barcode_{wc.fraction}.tsv.gz"
             if wc.fraction != "1.0"
-            else config.get("mprasnakeflow", {})
-            .get("experiment", {})
-            .get("reporter_experiment_barcode", [])
+            else config.get("mprasnakeflow", {}).get("experiment", {}).get("reporter_experiment_barcode", [])
         ),
         bcalm_result=lambda wc: (
             f"results/{wc.project}/preprocessing/mprasnakeflow/activity/downsample_tmp/elements_{wc.fraction}.tsv.gz"
             if wc.fraction != "1.0"
             else f"results/{wc.project}/preprocessing/mprasnakeflow/activity/bcalm/elements.tsv.gz"
         ),
-        script=getScript(
-            "preprocessing/mprasnakeflow/create_downsampling_activity_df.py"
-        ),
+        script=getScript("preprocessing/mprasnakeflow/create_downsampling_activity_df.py"),
     output:
         activity_df="results/{project}/preprocessing/mprasnakeflow/activity/downsample_tmp/activity_df_{fraction}.csv.gz",
     log:
@@ -410,9 +364,7 @@ Copy to the final downsample folder. This is necessary to avoid issues with the 
             fraction=[0.1 * i for i in range(1, 11)],
         ),
     output:
-        output_path=directory(
-            "results/{project}/preprocessing/mprasnakeflow/activity/downsampling_activity/"
-        ),
+        output_path=directory("results/{project}/preprocessing/mprasnakeflow/activity/downsampling_activity/"),
     log:
         "logs/preprocessing/mprasnakeflow/experiment/downsampling_activity_copy.{project}.log",
     conda:
