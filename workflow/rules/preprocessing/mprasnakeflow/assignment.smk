@@ -70,7 +70,9 @@ rule preprocessing_mprasnakeflow_assignment_downsample:
         getCondaEnv("default.yml")
     shell:
         """
-        python {input.script} --input {input.assignment} --output-folder $(dirname {output[0]}) > {log} 2>&1
+        paths=( {output} );
+        python {input.script} --input {input.assignment} \
+        --output-folder $(dirname "${{paths[0]}}") > {log} 2>&1
         """
 
 

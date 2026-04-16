@@ -246,7 +246,8 @@ rule preprocessing_mprasnakeflow_experiment_downsampling:
         "docker://quay.io/biocontainers/mpralib:0.10.3--pyhdfd78af_0"
     shell:
         """
-        python {input.script} --reporter-experiment-barcode {input.reporter_experiment_barcode} --output-folder $(dirname {output[0]}) > {log} 2>&1
+        paths=( {output} );
+        python {input.script} --reporter-experiment-barcode {input.reporter_experiment_barcode} --output-folder $(dirname "${{paths[0]}}") > {log} 2>&1
         """
 
 
